@@ -74,7 +74,7 @@ model CartItem {
   price     Float
   cartId    Int
   cart      Cart    @relation(fields: [cartId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   subtotal  Float
 }
 
@@ -99,21 +99,21 @@ model ProductImage {
   id        Int     @id @default(autoincrement())
   url       String // URL or path to the image
   productId Int
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model ProductSize {
   id        Int     @id @default(autoincrement())
   size      String // e.g., "Small", "Medium", "Large", etc.
   productId Int
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model ProductColor {
   id        Int     @id @default(autoincrement())
   color     String // e.g., "Red", "Blue", "Green", etc.
   productId Int
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 // products model
@@ -123,8 +123,8 @@ model ProductComparison {
   productAId Int
   productBId Int
   createdAt  DateTime @default(now())
-  productA   Product  @relation("ProductA", fields: [productAId], references: [id])
-  productB   Product  @relation("ProductB", fields: [productBId], references: [id])
+  productA   Product  @relation("ProductA", fields: [productAId], references: [id], onDelete: Cascade)
+  productB   Product  @relation("ProductB", fields: [productBId], references: [id], onDelete: Cascade)
 }
 
 model Pagination {

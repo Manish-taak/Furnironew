@@ -50,24 +50,9 @@ export async function POST(req: NextRequest) {
         console.error("Failed to create product:", error);
         return NextResponse.json({ success: false, error: "Failed to create product" }, { status: 500 });
     }
+    finally {
+        prisma.$disconnect()
+    }
 }
-
-
-
-
-// import prisma from "../../../../prisma";
-
-// export const POST = async (req: Request, res: NextResponse) => {
-//     try {
-//         const userdata = await req.json();
-//         await Connectdatabase();
-//         const post = await prisma.user.create({ data: userdata })
-//         return NextResponse.json({ message: "user created", data: post }, { status: 200 })
-//     } catch (error) {
-//         return NextResponse.json({ message: "user not created" }, { status: 400 })
-//     } finally {
-//         await prisma.$disconnect()
-//     }
-// }
 
 

@@ -12,6 +12,7 @@ let prisma: PrismaClient;
  * In production, we instantiate PrismaClient normally.
  * In development, we use the global object to persist PrismaClient across hot reloads.
  */
+
 if (process.env.NODE_ENV === 'production') {
     prisma = new PrismaClient();
 } else {

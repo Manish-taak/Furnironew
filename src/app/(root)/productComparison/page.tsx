@@ -53,12 +53,21 @@ const ProductList: React.FC = () => {
     }, [page, pageSize]);
 
     return (
-        <>
-            {/* {products.map((item,index)=>{
-            {console.log(item)}
-            <Card bgimage={item.images} description={item.description} name={item.title} price={item.price}/>
-        })} */}
+        <div className='container'>
+           <div className='grid grid-cols-4 gap-8 '>
             <Card />
+            <Card />
+            <Card />
+            <Card />
+            <Card />
+            <Card />
+            <Card />
+            <Card />
+            <Card />
+            <Card />
+            <Card />
+            <Card />
+           </div>
             <div>
                 <h1>Products</h1>
                 <ul>
@@ -91,7 +100,7 @@ const ProductList: React.FC = () => {
                     </button>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 

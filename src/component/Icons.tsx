@@ -1,6 +1,8 @@
 import React from 'react';
-import Account from '../../public/icons/account'; // SVG as React component
-
+import Account from '../../public/icons/account.svg'; // SVG as React component
+import Hearticon from "../../public/icons/Heart.svg"
+import Share from "../../public/icons/share.svg"
+import Comapre from "../../public/icons/compare.svg"
 interface SvgIconProps {
     name: keyof typeof ICONS;
     width?: number;
@@ -12,8 +14,12 @@ interface SvgIconProps {
 // Add React SVG components or static paths
 const ICONS = {
     Account: Account,
+    Hearticon:Hearticon,
+    Share:Share,
+    Comapre:Comapre
     // other icons...
 };
+
 
 const SvgIcon: React.FC<SvgIconProps> = ({ name, width = 24, height = 24, className = '', fill = 'currentColor' }) => {
     const IconComponentOrPath = ICONS[name];

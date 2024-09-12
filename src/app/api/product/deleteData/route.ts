@@ -11,18 +11,22 @@ export async function DELETE(req: NextRequest) {
         // Get the product ID from the URL parameters
         const url = new URL(req.url);
         const id = url.searchParams.get("id");
+        const productId = Number(id);
 
         if (!id) {
-            return NextResponse.json({ success: false, error: "Product ID is required" }, { status: 400 });
+            return NextResponse.json({ success: false, error: "Product ID is required", status:400 });
         }
-
-        // Parse the ID as an integer
-        const productId = parseInt(id);
-
-        // Validate the ID
-        if (isNaN(productId)) {
-            return NextResponse.json({ success: false, error: "Invalid Product ID" }, { status: 400 });
+    
+        if(isNaN(productId)){
+            return NextResponse.json({ success: false, error: "Product ID is invalid" , status:400 });
         }
+    
+        const existingProduct = await prisma.product.findUnique({where: { id: productId },});
+      
+          if (!existingProduct) {
+            return NextResponse.json({ error: 'Product with this ID does not exist' , status:400 });
+          }
+      
 
         // Delete the product from the database
         const deletedProduct = await prisma.product.delete({

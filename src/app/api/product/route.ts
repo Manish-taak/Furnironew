@@ -10,14 +10,11 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
     // export const POST = async (req: Request, res: NextResponse) => {
 
-
-    console.log(req, "=jhgdjfsjdgjfsd")
-
     try {
         // Parse the request body to get product data
         const data = await req.json();
+        console.log(data, "data")
 
-        console.log(data, "data");
 
         // Create a new product in the database
         const newProduct = await prisma.product.create({

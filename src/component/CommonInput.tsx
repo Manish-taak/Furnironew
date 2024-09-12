@@ -60,5 +60,5 @@ const CommonInput: React.FC<CommonInputProps> = ({
         </div>
     );
 };
-
+    
 export default CommonInput;

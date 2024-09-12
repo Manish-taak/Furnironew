@@ -6,7 +6,6 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function DELETE(req: NextRequest) {
 
-    console.log(req, "is ")
 
     try {
         // Get the product ID from the URL parameters
@@ -31,9 +30,7 @@ export async function DELETE(req: NextRequest) {
         });
 
         // Return a success response
-        return NextResponse.json({ success: true, message: "Product deleted successfully", product: deletedProduct }, { status: 200 });
-
-
+        return NextResponse.json({ success: true, message: "Product deleted successfully" }, { status: 200 });
 
     } catch (error) {
         console.error("Failed to delete product:", error);

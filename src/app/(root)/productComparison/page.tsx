@@ -62,7 +62,7 @@ const ProductList: React.FC = () => {
             </ul>
 
             {/* Pagination Controls */}
-            <div>
+            <div className='flex justify-center'>
                 <button onClick={() => setPage(page - 1)} disabled={page === 1}>
                     Previous
                 </button>

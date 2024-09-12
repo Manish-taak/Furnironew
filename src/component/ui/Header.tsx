@@ -8,7 +8,7 @@ const Header = () => {
                 header
             </h1>
             <SvgIcon className='[&>*]:fill-orange-500' name='Account' fill='red' />
-            <SvgIcon className='' name='Cart' fill='red' />
+            <SvgIcon className='[&>*]:fill-slate-200' name='Cart' fill='red' />
         </div>
     )
 }

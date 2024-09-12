@@ -40,7 +40,6 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        console.log("Product created successfully:", newProduct);
 
         return NextResponse.json({ success: true, product: newProduct }, { status: 201 });
     } catch (error) {
@@ -51,5 +50,3 @@ export async function POST(req: NextRequest) {
         prisma.$disconnect()
     }
 }
-
-

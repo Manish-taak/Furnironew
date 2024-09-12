@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-
+import img from "@/../public/images/furniture12.png"
+import Card from '@/component/ui/Card';
 // Define TypeScript types for the Product and Pagination data
 type Product = {
     id: number;
@@ -53,6 +54,12 @@ const ProductList: React.FC = () => {
     }, [page, pageSize]);
 
     return (
+        <>
+        {/* {products.map((item,index)=>{
+            {console.log(item)}
+            <Card bgimage={item.images} description={item.description} name={item.title} price={item.price}/>
+        })} */}
+        <Card />
         <div>
             <h1>Products</h1>
             <ul>
@@ -85,6 +92,7 @@ const ProductList: React.FC = () => {
                 </button>
             </div>
         </div>
+        </>
     );
 };
 

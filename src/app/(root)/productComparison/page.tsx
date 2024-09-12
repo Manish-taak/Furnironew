@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from 'react';
-
+import img from "@/../public/images/furniture12.png"
+import Card from '@/component/ui/Card';
 // Define TypeScript types for the Product and Pagination data
 type Product = {
     id: number;
@@ -16,30 +17,30 @@ type Product = {
 };
 
 type Pagination = {
-    page: number;
-    pageSize: number;
-    totalPages: number;
-    totalProducts: number;
+    totalCount: number; // Total number of products
+    limit: number; // Page size
+    offset: number; // Starting index
 };
 
 // Define the ProductList component
 const ProductList: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [page, setPage] = useState<number>(1);
-    const [pageSize] = useState<number>(10);
+    const [pageSize] = useState<number>(10); // Number of products per page
     const [totalPages, setTotalPages] = useState<number>(0);
-console.log(totalPages,"===========")
+    const [totalProducts, setTotalProducts] = useState<number>(0);
+
     // Fetch products from the API
     const fetchProducts = async (page: number, pageSize: number): Promise<void> => {
         try {
-            const response = await fetch(`api/product/getData?page=${4}&pageSize=${4}`);
-            // const response = await fetch(`/api/products?page=${page}&pageSize=${pageSize}`);
-            
-            const data: { data: Product[]; pagination: Pagination } = await response.json();
+            const offset = (page - 1) * pageSize; // Calculate offset based on page and page size
+            const response = await fetch(`http://localhost:3000/api/product/getData?limit=${pageSize}&offset=${offset}`);
+            const data: { success: boolean; data: Product[]; meta: Pagination } = await response.json();
 
-            if (response.ok) {
+            if (response.ok && data.success) {
                 setProducts(data.data);
-                setTotalPages(data.pagination.page);
+                setTotalProducts(data.meta.totalCount);
+                setTotalPages(Math.ceil(data.meta.totalCount / pageSize)); // Calculate total pages
             } else {
                 console.error('Failed to fetch products:', data);
             }
@@ -53,6 +54,12 @@ console.log(totalPages,"===========")
     }, [page, pageSize]);
 
     return (
+        <>
+        {/* {products.map((item,index)=>{
+            {console.log(item)}
+            <Card bgimage={item.images} description={item.description} name={item.title} price={item.price}/>
+        })} */}
+        <Card />
         <div>
             <h1>Products</h1>
             <ul>
@@ -65,15 +72,27 @@ console.log(totalPages,"===========")
 
             {/* Pagination Controls */}
             <div className='flex justify-center gap-x-[38px] bg-[#FFFFFF] items-center'>
-                <button className={`bg-[#F9F1E7] rounded-[10px] border-none py-[15px] px-7 text-[#000000] text-xl leading-8 cursor-pointer transition-all ${page === 1 ? "opacity-0" : "opacity-1"} `} onClick={() => setPage(page - 1)}  disabled={page === 1}>
+                <button
+                    className={`bg-[#F9F1E7] rounded-[10px] border-none py-[15px] px-7 text-[#000000] text-xl leading-8 cursor-pointer transition-all ${page === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+                    onClick={() => setPage(page - 1)}
+                    disabled={page === 1}
+                >
                     Previous
                 </button>
-                <span className='flex justify-center items-center gap-x-[38px]'> <span className='text-xl py-[15px] px-6 bg-[#B88E2F] rounded-[10px] text-[#000000]  cursor-pointer'> {page} </span> <span className='text-xl py-[15px] px-6 bg-[#F9F1E7] rounded-[10px] text-[#000000] cursor-pointer'> {totalPages}</span> </span>
-                <button className='bg-[#F9F1E7] rounded-[10px] border-none py-[15px] px-7 text-[#000000] text-xl leading-8 cursor-pointer' onClick={() => setPage(page + 1)} disabled={page === totalPages}>
+                <span className='flex justify-center items-center gap-x-[38px]'>
+                    <span className='text-xl py-[15px] px-6 bg-[#B88E2F] rounded-[10px] text-[#000000] cursor-pointer'> {page} </span>
+                    <span className='text-xl py-[15px] px-6 bg-[#F9F1E7] rounded-[10px] text-[#000000] cursor-pointer'> {totalPages}</span>
+                </span>
+                <button
+                    className='bg-[#F9F1E7] rounded-[10px] border-none py-[15px] px-7 text-[#000000] text-xl leading-8 cursor-pointer'
+                    onClick={() => setPage(page + 1)}
+                    disabled={page === totalPages}
+                >
                     Next
                 </button>
             </div>
         </div>
+        </>
     );
 };
 

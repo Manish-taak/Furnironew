@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
             },
         });
 
+
         // Fetch total count of products for pagination metadata
         const totalCount = await prisma.product.count();
 

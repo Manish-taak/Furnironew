@@ -11,9 +11,9 @@ const NotFoundPage: React.FC = () => {
                     Sorry, but the page you are looking for doesn't exist.
                 </p>
                 <Link href="/">
-                    <a className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    <p className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
                         Go back home
-                    </a>
+                    </p>
                 </Link>
             </div>
         </div>

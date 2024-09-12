@@ -8,16 +8,29 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  phone     String
-  password  String
+  id       Int     @id @default(autoincrement())
+  name     String?
+  email    String? @unique
+  phone    String?
+  password String
+
+  // Add these fields for password reset functionality
+  resetToken    String? // Optional field for reset token
+  resetTokenExp DateTime? // Optional field for reset token expiry
+
   Review    Review[] @relation("UserReview")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Cart      Cart[]
 }
+
+// model User {
+//   id       Int      @id @default(autoincrement())
+//   email    String   @unique
+//   password String
+//   name     String?  // Optional field
+//   phonets  String?  // Optional field
+// }
 
 model Review {
   id        Int      @id @default(autoincrement())

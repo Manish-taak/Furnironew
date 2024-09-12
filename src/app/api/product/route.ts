@@ -13,8 +13,8 @@ export async function POST(req: NextRequest) {
     try {
         // Parse the request body to get product data
         const data = await req.json();
+        console.log(data, "data")
 
-        console.log(data, "data");
 
         // Create a new product in the database
         const newProduct = await prisma.product.create({
@@ -40,7 +40,6 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        console.log("Product created successfully:", newProduct);
 
         return NextResponse.json({ success: true, product: newProduct }, { status: 201 });
     } catch (error) {
@@ -51,5 +50,3 @@ export async function POST(req: NextRequest) {
         prisma.$disconnect()
     }
 }
-
-

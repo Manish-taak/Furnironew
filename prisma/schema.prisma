@@ -78,7 +78,7 @@ model CartItem {
   subtotal  Float
 }
 
-// products model
+// products model 
 
 model Product {
   id           Int                 @id @default(autoincrement())

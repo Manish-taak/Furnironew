@@ -27,8 +27,8 @@ const ProductList: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [page, setPage] = useState<number>(1);
     const [pageSize] = useState<number>(10);
-    const [totalPages, setTotalPages] = useState<number>(0);
-
+    const [totalPages, setTotalPages] = useState<number>(100);
+console.log(totalPages,"===========")
     // Fetch products from the API
     const fetchProducts = async (page: number, pageSize: number): Promise<void> => {
         try {
@@ -63,7 +63,7 @@ const ProductList: React.FC = () => {
 
             {/* Pagination Controls */}
             <div className='flex justify-center gap-x-[38px] bg-[#FFFFFF] items-center'>
-                <button className='bg-[#F9F1E7] rounded-[10px] border-none py-[15px] px-7 text-[#000000] text-xl leading-8 cursor-pointer' onClick={() => setPage(page - 1)} disabled={page === 1}>
+                <button className={`bg-[#F9F1E7] rounded-[10px] border-none py-[15px] px-7 text-[#000000] text-xl leading-8 cursor-pointer transition-all ${page === 1 ? "opacity-0" : "opacity-1"} `} onClick={() => setPage(page - 1)}  disabled={page === 1}>
                     Previous
                 </button>
                 <span className='flex justify-center items-center gap-x-[38px]'> <span className='text-xl py-[15px] px-6 bg-[#B88E2F] rounded-[10px] text-[#000000]  cursor-pointer'> {page} </span> <span className='text-xl py-[15px] px-6 bg-[#F9F1E7] rounded-[10px] text-[#000000] cursor-pointer'> {totalPages}</span> </span>

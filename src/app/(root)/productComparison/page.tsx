@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import img from "@/../public/images/furniture12.png"
 import Card from '@/component/ui/Card';
 // Define TypeScript types for the Product and Pagination data
 type Product = {
@@ -55,43 +54,43 @@ const ProductList: React.FC = () => {
 
     return (
         <>
-        {/* {products.map((item,index)=>{
+            {/* {products.map((item,index)=>{
             {console.log(item)}
             <Card bgimage={item.images} description={item.description} name={item.title} price={item.price}/>
         })} */}
-        <Card />
-        <div>
-            <h1>Products</h1>
-            <ul>
-                {products.map((product) => (
-                    <li key={product.id}>
-                        {product.title} - ${product.price}
-                    </li>
-                ))}
-            </ul>
+            <Card />
+            <div>
+                <h1>Products</h1>
+                <ul>
+                    {products.map((product) => (
+                        <li key={product.id}>
+                            {product.title} - ${product.price}
+                        </li>
+                    ))}
+                </ul>
 
-            {/* Pagination Controls */}
-            <div className='flex justify-center gap-x-[38px] bg-[#FFFFFF] items-center'>
-                <button
-                    className={`bg-[#F9F1E7] rounded-[10px] border-none py-[15px] px-7 text-[#000000] text-xl leading-8 cursor-pointer transition-all ${page === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
-                    onClick={() => setPage(page - 1)}
-                    disabled={page === 1}
-                >
-                    Previous
-                </button>
-                <span className='flex justify-center items-center gap-x-[38px]'>
-                    <span className='text-xl py-[15px] px-6 bg-[#B88E2F] rounded-[10px] text-[#000000] cursor-pointer'> {page} </span>
-                    <span className='text-xl py-[15px] px-6 bg-[#F9F1E7] rounded-[10px] text-[#000000] cursor-pointer'> {totalPages}</span>
-                </span>
-                <button
-                    className='bg-[#F9F1E7] rounded-[10px] border-none py-[15px] px-7 text-[#000000] text-xl leading-8 cursor-pointer'
-                    onClick={() => setPage(page + 1)}
-                    disabled={page === totalPages}
-                >
-                    Next
-                </button>
+                {/* Pagination Controls */}
+                <div className='flex justify-center gap-x-[38px] bg-[#FFFFFF] items-center'>
+                    <button
+                        className={`bg-[#F9F1E7] rounded-[10px] border-none py-[15px] px-7 text-[#000000] text-xl leading-8 cursor-pointer transition-all ${page === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+                        onClick={() => setPage(page - 1)}
+                        disabled={page === 1}
+                    >
+                        Previous
+                    </button>
+                    <span className='flex justify-center items-center gap-x-[38px]'>
+                        <span className='text-xl py-[15px] px-6 bg-[#B88E2F] rounded-[10px] text-[#000000] cursor-pointer'> {page} </span>
+                        <span className='text-xl py-[15px] px-6 bg-[#F9F1E7] rounded-[10px] text-[#000000] cursor-pointer'> {totalPages}</span>
+                    </span>
+                    <button
+                        className='bg-[#F9F1E7] rounded-[10px] border-none py-[15px] px-7 text-[#000000] text-xl leading-8 cursor-pointer'
+                        onClick={() => setPage(page + 1)}
+                        disabled={page === totalPages}
+                    >
+                        Next
+                    </button>
+                </div>
             </div>
-        </div>
         </>
     );
 };

@@ -7,7 +7,9 @@ export interface AccountIconProps extends React.SVGProps<SVGSVGElement> {
 
 export interface Cardprops {
 bgimage?:any;
-name?:string;
+tittle?:string;
 description?:string;
-price?:number
+price?:number,
+oldprice?:string,
+discount?:number,
 }

@@ -62,12 +62,12 @@ const ProductList: React.FC = () => {
             </ul>
 
             {/* Pagination Controls */}
-            <div className='flex justify-center'>
-                <button onClick={() => setPage(page - 1)} disabled={page === 1}>
+            <div className='flex justify-center gap-x-[38px] bg-[#FFFFFF] items-center'>
+                <button className='bg-[#F9F1E7] rounded-[10px] border-none py-[15px] px-7 text-[#000000] text-xl leading-8 cursor-pointer' onClick={() => setPage(page - 1)} disabled={page === 1}>
                     Previous
                 </button>
-                <span> Page {page} of {totalPages} </span>
-                <button onClick={() => setPage(page + 1)} disabled={page === totalPages}>
+                <span className='flex justify-center items-center gap-x-[38px]'> <span className='text-xl py-[15px] px-6 bg-[#B88E2F] rounded-[10px] text-[#000000]  cursor-pointer'> {page} </span> <span className='text-xl py-[15px] px-6 bg-[#F9F1E7] rounded-[10px] text-[#000000] cursor-pointer'> {totalPages}</span> </span>
+                <button className='bg-[#F9F1E7] rounded-[10px] border-none py-[15px] px-7 text-[#000000] text-xl leading-8 cursor-pointer' onClick={() => setPage(page + 1)} disabled={page === totalPages}>
                     Next
                 </button>
             </div>

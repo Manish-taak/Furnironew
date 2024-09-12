@@ -27,17 +27,19 @@ const ProductList: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [page, setPage] = useState<number>(1);
     const [pageSize] = useState<number>(10);
-    const [totalPages, setTotalPages] = useState<number>(100);
+    const [totalPages, setTotalPages] = useState<number>(0);
 console.log(totalPages,"===========")
     // Fetch products from the API
     const fetchProducts = async (page: number, pageSize: number): Promise<void> => {
         try {
-            const response = await fetch(`/api/products?page=${page}&pageSize=${pageSize}`);
+            const response = await fetch(`api/product/getData?page=${4}&pageSize=${4}`);
+            // const response = await fetch(`/api/products?page=${page}&pageSize=${pageSize}`);
+            
             const data: { data: Product[]; pagination: Pagination } = await response.json();
 
             if (response.ok) {
                 setProducts(data.data);
-                setTotalPages(data.pagination.totalPages);
+                setTotalPages(data.pagination.page);
             } else {
                 console.error('Failed to fetch products:', data);
             }

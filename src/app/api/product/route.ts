@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
     try {
         // Parse the request body to get product data
         const data = await req.json();
-        console.log(data, "data")
 
 
         // Create a new product in the database

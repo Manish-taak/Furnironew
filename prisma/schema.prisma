@@ -18,10 +18,11 @@ model User {
   resetToken    String? // Optional field for reset token
   resetTokenExp DateTime? // Optional field for reset token expiry
 
-  Review    Review[] @relation("UserReview")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  Review    Review[]   @relation("UserReview")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   Cart      Cart[]
+  Favorite  Favorite[]
 }
 
 // model User {
@@ -106,6 +107,8 @@ model Product {
   colors       ProductColor[]
   comparisonsA ProductComparison[] @relation("ProductA")
   comparisonsB ProductComparison[] @relation("ProductB")
+  Favorite     Favorite?           @relation(fields: [favoriteId], references: [id])
+  favoriteId   Int?
 }
 
 model ProductImage {
@@ -145,4 +148,12 @@ model Pagination {
   pageNumber Int
   pageSize   Int
   createdAt  DateTime @default(now())
+}
+
+model Favorite {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  User      User?     @relation(fields: [userId], references: [id])
+  userId    Int?
+  Product   Product[]
 }

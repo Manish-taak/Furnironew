@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
  * Handles GET request to fetch all products with pagination.
  */
 export async function GET(req: NextRequest) {
-    console.log(req, "data")
     try {
         // Parse query parameters for limit and offset
         const { searchParams } = new URL(req.url);

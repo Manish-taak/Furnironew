@@ -1,24 +1,17 @@
-import { comparePasswords, generateToken } from "@/app/utils/auth";
-import prisma from "@/lib";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
+  console.log(req, "data")
   try {
-    const { email, password } = await req.json();
+    // Clear the token from cookies by setting an expired cookie
+    const response = NextResponse.json({ success: true, message: "Logged out successfully" });
 
-    // Find the user
-    const user = await prisma.user.findUnique({ where: { email } });
+    // Set cookie to expire immediately
+    response.cookies.set("token", "", { httpOnly: true, expires: new Date(0) });
 
-    if (!user || !(await comparePasswords(password, user.password))) {
-      return NextResponse.json({ success: false, error: "Invalid credentials" }, { status: 401 });
-    }
-
-    // Generate a token
-    const token = generateToken(user.id);
-
-    return NextResponse.json({ success: true, token }, { status: 200 });
+    return response;
   } catch (error) {
-    console.error("Failed to login user:", error);
-    return NextResponse.json({ success: false, error: "Failed to login user" }, { status: 500 });
+    console.error("Failed to logout user:", error);
+    return NextResponse.json({ success: false, error: "Failed to logout user" }, { status: 500 });
   }
 }

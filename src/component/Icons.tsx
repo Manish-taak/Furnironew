@@ -1,44 +1,47 @@
 import React from 'react';
-import Account from '../../public/icons/account'; // SVG as React component
+import Cart from '../../public/icons/cart.svg';
+import Account1 from '../../public/icons/account1.svg';
 
 interface SvgIconProps {
-    name: keyof typeof ICONS;
-    width?: number;
-    height?: number;
-    className?: string;
-    fill?: string; // Optional fill color
+    name: keyof typeof ICONS; // The icon name (must be a key in ICONS)
+    width?: number;           // Custom width of the icon
+    height?: number;          // Custom height of the icon
+    className?: string;       // Additional classes for styling
+    fill?: string;            // Fill color for the icon
 }
 
-// Add React SVG components or static paths
+// Object containing the imported SVG components
 const ICONS = {
-    Account: Account,
-    // other icons...
+    Account: Account1,
+    Cart: Cart
 };
 
-const SvgIcon: React.FC<SvgIconProps> = ({ name, width = 24, height = 24, className = '', fill = 'currentColor' }) => {
-    const IconComponentOrPath = ICONS[name];
+// The SvgIcon component which dynamically renders the correct SVG icon
+const SvgIcon: React.FC<SvgIconProps> = ({
+    name,
+    width = 24, // Default width
+    height = 24, // Default height
+    className = '', // Default class name
+    fill = 'currentColor' // Default fill color
+}) => {
+    // Retrieve the correct icon from the ICONS object
+    const IconComponent = ICONS[name];
 
-    if (!IconComponentOrPath) {
-        console.error(`Icon "${name}" does not exist in the icon set`);
-        return null;
+    if (!IconComponent) {
+        // Log an error if the icon name is invalid
+        console.error(`Icon "${name}" does not exist in the icon set.`);
+        return null; // Optionally, return a default fallback icon here
     }
 
-    if (typeof IconComponentOrPath === 'string') {
-        // For static SVG paths, we cannot modify fill directly unless inlined
-        return (
-            <img
-                src={IconComponentOrPath}
-                alt={`${name} icon`}
-                width={width}
-                height={height}
-                className={className}
-            />
-        );
-    } else {
-        // For React components, pass the fill color as a prop or use class
-        const SvgComponent = IconComponentOrPath;
-        return <SvgComponent className={className} width={width} height={height} fill={fill} />;
-    }
+    // Render the SVG component with dynamic props
+    return (
+        <IconComponent
+            className={className} // Apply custom classes
+            width={width}         // Custom width
+            height={height}       // Custom height
+            fill={fill}           // Fill color
+        />
+    );
 };
 
 export default SvgIcon;

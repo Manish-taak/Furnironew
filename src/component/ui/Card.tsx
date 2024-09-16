@@ -1,13 +1,11 @@
 import React from "react";
 import img from "@/../public/images/furniture15.png";
-import { Icons } from "react-toastify";
-import SvgIcon from "../Icons";
 const Card = () => {
   return (
     <>
-      <div className="bg-[#F4F5F7]  hover:cursor-pointer relative ">
+      <div className="bg-[#F4F5F7] inline-block hover:cursor-pointer relative ">
         <div className="relative">
-          <img className="w-full object-contain" src={String(img.src)} alt="img" />
+          <img className=" object-contain" src={String(img.src)} alt="img" />
           <p className="py-3 px-[5px] bg-[#E97171] text-white rounded-full absolute top-6 right-6 text-base font-medium leading-6">
             -30%
           </p>
@@ -29,22 +27,22 @@ const Card = () => {
           </div>
         </div>
         <div className="absolute top-0 right-0 left-0 bottom-0 bg-[#3A3A3A] bg-opacity-[0.7] transition-all duration-[0.5s] opacity-0 hover:opacity-[1] flex flex-col justify-center items-center p-[17px]">
-            <button className="text-[#B88E2F] py-3 text-base font-medium leading-6 bg-[#FFFFFF] max-w-[202px] w-full">Add to cart</button>
-            <div className="flex items-center justify-between w-full  mt-6">
-                <div className="flex items-center">
-                {/* <SvgIcon name='Account' /> */}
-                <p className="text-[#FFFFFF] text-base font-medium leading-6">Share</p>
-                </div>
-                <div className="flex items-center">
-                {/* <SvgIcon name='Account' /> */}
-                <p className="text-[#FFFFFF] text-base font-medium leading-6">Compare</p>
-                </div>
-                <div className="flex items-center">
-                {/* <SvgIcon name='Account' /> */}
-                <p className="text-[#FFFFFF] text-base font-medium leading-6">Like</p>
-                </div>
+          <button className="text-[#B88E2F] py-3 text-base font-medium leading-6 bg-[#FFFFFF] max-w-[202px] w-full">Add to cart</button>
+          <div className="flex items-center justify-between w-full  mt-6">
+            <div className="flex items-center">
+              {/* <SvgIcon name='Account' /> */}
+              <p className="text-[#FFFFFF] text-base font-medium leading-6">Share</p>
             </div>
-        </div> 
+            <div className="flex items-center">
+              {/* <SvgIcon name='Account' /> */}
+              <p className="text-[#FFFFFF] text-base font-medium leading-6">Compare</p>
+            </div>
+            <div className="flex items-center">
+              {/* <SvgIcon name='Account' /> */}
+              <p className="text-[#FFFFFF] text-base font-medium leading-6">Like</p>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

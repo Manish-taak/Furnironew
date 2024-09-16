@@ -4,12 +4,16 @@ import nodemailer from 'nodemailer';
 
 // Function to send an email
 export async function sendEmail(to: string, subject: string, html: string) {
-    const transporter = nodemailer.createTransport({
-        service: 'Gmail', // or any other email service
+    const transporter =  nodemailer.createTransport({
+        host: 'smtp.gmail.com', // or any other email service
+        port: 587,
+        secure: false,
+        // requireTLS: true,
         auth: {
-            user: process.env.EMAIL_USER, // your email address
-            pass: process.env.EMAIL_PASSWORD, // your email password or app-specific password
+            user: 'manish05.mdb@gmail.com', // your email address
+            pass: 'frwkfjhzozkjlsvx', // your email password or app-specific password
         },
+        debug: true, 
     });
 
     await transporter.sendMail({
@@ -17,5 +21,9 @@ export async function sendEmail(to: string, subject: string, html: string) {
         to,
         subject,
         html,
-    });
+    }, (error, info) => {
+        if (error) {
+          return console.log(error);
+        }
+        console.log('Message sent: %s', info.messageId)})
 }

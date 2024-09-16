@@ -7,6 +7,7 @@ import { addMinutes } from "date-fns";
 import prisma from "@/lib";
 
 export async function POST(req: NextRequest) {
+
     try {
         const { email } = await req.json();
 
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
 
         await sendEmail(
             user.email!,
-            "Reset Your Password",
+            "Reset Your Password furniro",
             `<p>Your OTP for password reset is: <strong>${otp}</strong>. It will expire in 10 minutes.</p>`
         );
 

@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
         }
 
         const otp = generateOtp();
-        const expirationTime = addMinutes(new Date(), 10);
+        const expirationTime = addMinutes(new Date(), 1);
 
         await prisma.user.update({
             where: { email },

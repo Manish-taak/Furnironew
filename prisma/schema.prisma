@@ -1,46 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-  id       Int     @id @default(autoincrement())
-  name     String?
-  email    String? @unique
-  phone    String?
-  password String
-
-  // Add these fields for password reset functionality
-  resetToken    String? // Optional field for reset token
-  resetTokenExp DateTime? // Optional field for reset token expiry
-
-  Review    Review[]   @relation("UserReview")
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  Cart      Cart[]
-  Favorite  Favorite[]
+  id            Int        @id @default(autoincrement())
+  email         String?    @unique
+  name          String?
+  createdAt     DateTime   @default(now())
+  password      String
+  phone         String?
+  updatedAt     DateTime   @updatedAt
+  resetToken    String?
+  resetTokenExp DateTime?
+  Cart          Cart[]
+  Favorite      Favorite[]
+  Review        Review[]   @relation("UserReview")
 }
-
-// model User {
-//   id       Int      @id @default(autoincrement())
-//   email    String   @unique
-//   password String
-//   name     String?  // Optional field
-//   phonets  String?  // Optional field
-// }
 
 model Review {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
   userId    Int
-  user      User     @relation("UserReview", fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User     @relation("UserReview", fields: [userId], references: [id])
+
+  @@index([userId], map: "Review_userId_fkey")
 }
 
 model Contact {
@@ -67,18 +58,22 @@ model Checkout {
   additionalInfo String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  cart           Cart?    @relation(fields: [cartId], references: [id])
   cartId         Int?
+  cart           Cart?    @relation(fields: [cartId], references: [id])
+
+  @@index([cartId], map: "Checkout_cartId_fkey")
 }
 
 model Cart {
   id        Int        @id @default(autoincrement())
   userId    Int?
-  user      User?      @relation(fields: [userId], references: [id])
-  items     CartItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  user      User?      @relation(fields: [userId], references: [id])
+  items     CartItem[]
   Checkout  Checkout[]
+
+  @@index([userId], map: "Cart_userId_fkey")
 }
 
 model CartItem {
@@ -87,52 +82,59 @@ model CartItem {
   quantity  Int
   price     Float
   cartId    Int
+  subtotal  Float
   cart      Cart    @relation(fields: [cartId], references: [id])
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  subtotal  Float
-}
 
-// products model 
+  @@index([cartId], map: "CartItem_cartId_fkey")
+  @@index([productId], map: "CartItem_productId_fkey")
+}
 
 model Product {
   id           Int                 @id @default(autoincrement())
-  title        String
   price        Float
-  description  String
   createdAt    DateTime            @default(now())
+  description  String
+  title        String
   updatedAt    DateTime            @updatedAt
+  favoriteId   Int?
   cartItems    CartItem[]
-  images       ProductImage[]
-  sizes        ProductSize[]
+  Favorite     Favorite?           @relation(fields: [favoriteId], references: [id])
   colors       ProductColor[]
   comparisonsA ProductComparison[] @relation("ProductA")
   comparisonsB ProductComparison[] @relation("ProductB")
-  Favorite     Favorite?           @relation(fields: [favoriteId], references: [id])
-  favoriteId   Int?
+  images       ProductImage[]
+  sizes        ProductSize[]
+
+  @@index([favoriteId], map: "Product_favoriteId_fkey")
 }
 
 model ProductImage {
   id        Int     @id @default(autoincrement())
-  url       String // URL or path to the image
+  url       String
   productId Int
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId], map: "ProductImage_productId_fkey")
 }
 
 model ProductSize {
   id        Int     @id @default(autoincrement())
-  size      String // e.g., "Small", "Medium", "Large", etc.
+  size      String
   productId Int
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId], map: "ProductSize_productId_fkey")
 }
 
 model ProductColor {
   id        Int     @id @default(autoincrement())
-  color     String // e.g., "Red", "Blue", "Green", etc.
+  color     String
   productId Int
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-}
 
-// products model
+  @@index([productId], map: "ProductColor_productId_fkey")
+}
 
 model ProductComparison {
   id         Int      @id @default(autoincrement())
@@ -141,6 +143,9 @@ model ProductComparison {
   createdAt  DateTime @default(now())
   productA   Product  @relation("ProductA", fields: [productAId], references: [id], onDelete: Cascade)
   productB   Product  @relation("ProductB", fields: [productBId], references: [id], onDelete: Cascade)
+
+  @@index([productAId], map: "ProductComparison_productAId_fkey")
+  @@index([productBId], map: "ProductComparison_productBId_fkey")
 }
 
 model Pagination {
@@ -153,7 +158,9 @@ model Pagination {
 model Favorite {
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
-  User      User?     @relation(fields: [userId], references: [id])
   userId    Int?
+  User      User?     @relation(fields: [userId], references: [id])
   Product   Product[]
+
+  @@index([userId], map: "Favorite_userId_fkey")
 }

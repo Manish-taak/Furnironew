@@ -32,7 +32,7 @@ const page = () => {
       <OurProducts />
       <TittleSection/>
       <Card />
-      <Button
+      {/* <Button
         icon={true}
         navroute="/productComparison"
         btntype="submit"
@@ -67,7 +67,7 @@ const page = () => {
                       // error={errors.gender?.message}
                   />
                 )}
-              />
+              /> */}
     </>
   );
 };

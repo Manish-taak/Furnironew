@@ -25,21 +25,21 @@ const page = () => {
   const [show, setshow] = useState(false);
   return (
     <>
-      <Banner />
-      <BrowseRange />
-      <FuniroFurniture />
-      <Benefits/>
-      <OurProducts />
-      <TittleSection/>
-      <Card />
-      <Button
+      {/* <Banner /> */}
+      {/* <BrowseRange /> */}
+      {/* <FuniroFurniture /> */}
+      {/* <Benefits /> */}
+      {/* <OurProducts /> */}
+      {/* <TittleSection /> */}
+      {/* <Card /> */}
+      {/* <Button
         icon={true}
         navroute="/productComparison"
         btntype="submit"
         varient="transparent"
         children="hello"
-      />
-      <Input type="number" placeholder="enter your name" label="Your name" />
+      /> */}
+      {/* <Input type="number" placeholder="enter your name" label="Your name" />
       <Input
         show={true}
         setshow={setshow}
@@ -47,27 +47,25 @@ const page = () => {
         label="your name"
         type={`${show === true ? "text" : "password"}`}
         showtype={show}
-      />
- <Controller
-                name="gender"
-                control={control}
-                render={({ field }) => (
-                  <InputSelect
-                    {...field}
-                    label="Gender"
-                    placeholder="Western Province"
-                    value={field.value}
-                    onChange={field.onChange}
-                    options={[
-                      { id: 1, name: "Male" },
-                      { id: 2, name: "Female" },
-                      { id: 3, name: "Other" },
-                    ]}
-                    
-                      // error={errors.gender?.message}
-                  />
-                )}
-              />
+      /> */}
+      {/* <Controller
+        name="gender"
+        control={control}
+        render={({ field }) => (
+          <InputSelect
+            {...field}
+            label="Gender"
+            placeholder="Western Province"
+            value={field.value}
+            onChange={field.onChange}
+            options={[
+              { id: 1, name: "Male" },
+              { id: 2, name: "Female" },
+              { id: 3, name: "Other" },
+            ]}
+          />
+        )}
+      /> */}
     </>
   );
 };

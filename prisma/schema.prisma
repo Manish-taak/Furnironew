@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum role {
+  USER
+  ADMIN
+}
+
 model User {
   id            Int        @id @default(autoincrement())
   email         String?    @unique
@@ -20,6 +25,7 @@ model User {
   Cart          Cart[]
   Favorite      Favorite[]
   Review        Review[]   @relation("UserReview")
+  role          String     @default("USER")
 }
 
 model Review {

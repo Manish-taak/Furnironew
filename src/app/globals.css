@@ -3,10 +3,6 @@
 @tailwind utilities;
 
 @layer utilities {
-  .container{
-    @apply max-w-[1280px] w-full py-0 px-5 my-0 mx-[auto]; 
-  }
-
   .heading_48{
     @apply text-5xl font-medium leading-[72px]  ;
   }
@@ -40,13 +36,10 @@
   .subheading_20{
     @apply text-xl leading-[30px] font-semibold ;
   }
- 
 
   .nav_links{
     @apply text-base font-normal leading-6 ;
   }
-
-
 
   .card-heading{
     @apply text-2xl leading-7 font-semibold ;
@@ -60,5 +53,8 @@
     @apply text-xl font-semibold leading-[30px] ;
   }
 
+  .container{
+    @apply max-w-[1320px] w-full mx-auto px-5
+  }
 }
 

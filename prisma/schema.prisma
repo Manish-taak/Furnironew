@@ -92,19 +92,21 @@ model CartItem {
 }
 
 model Product {
-  id           Int                 @id @default(autoincrement())
-  createdAt    DateTime            @default(now())
-  title        String
-  updatedAt    DateTime            @updatedAt
-  favoriteId   Int?   
-  cartItems    CartItem[]
-  Favorite     Favorite?           @relation(fields: [favoriteId], references: [id])
+  id         Int       @id @default(autoincrement())
+  title      String
+  favoriteId Int?
+  tags       Json
+  Favorite   Favorite? @relation(fields: [favoriteId], references: [id])
+
   comparisonsA ProductComparison[] @relation("ProductA")
   comparisonsB ProductComparison[] @relation("ProductB")
   images       ProductImage[]
-  tags         Json
-  options      ProductOption[] 
+  options      ProductOption[]
   variants     Variant[]
+  cartItems    CartItem[]
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 
   @@index([favoriteId], map: "Product_favoriteId_fkey")
 }
@@ -114,21 +116,22 @@ model ProductOption {
   productId Int
   product   Product   @relation(fields: [productId], references: [id])
   key       String // e.g., "color", "size", etc.
-  values    Json // e.g., ["#t84364", "#eu6548"] or ["s", "m", "l"]
+  values    Json // e.g., ["red", "blue"] or ["S", "M", "L"]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  Variant   Variant[]
+  variants  Variant[]
 }
 
 model Variant {
-  id              Int           @id @default(autoincrement())
+  id              Int            @id @default(autoincrement())
   productId       Int
-  product         Product       @relation(fields: [productId], references: [id])
+  product         Product        @relation(fields: [productId], references: [id])
   price           Float // Variant-specific price
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  productOptionId Int
-  ProductOption   ProductOption @relation(fields: [productOptionId], references: [id])
+  optionDetails   Json // Stores key-value pairs, e.g., {"color": "red", "size": "M"}
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  ProductOption   ProductOption? @relation(fields: [productOptionId], references: [id])
+  productOptionId Int?
 }
 
 model category {

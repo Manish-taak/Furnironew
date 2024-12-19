@@ -20,7 +20,6 @@ interface ProductRequestBody {
     tags: string[];
     images: Image[];
     options: Options;
-    variants: Variant[];
 }
 
 export const POST = async (req: NextRequest) => {
@@ -30,12 +29,18 @@ export const POST = async (req: NextRequest) => {
 
         // Validate images
         if (!Array.isArray(images) || images.some((img) => typeof img.url !== "string")) {
-            return NextResponse.json({ error: "Invalid 'images' format. It must be an array of objects with a 'url' property." }, { status: 400 });
+            return NextResponse.json(
+                { error: "Invalid 'images' format. It must be an array of objects with a 'url' property." },
+                { status: 400 }
+            );
         }
 
         // Validate options
         if (typeof options !== "object" || Array.isArray(options)) {
-            return NextResponse.json({ error: "Invalid 'options' format. It must be an object with key-value pairs." }, { status: 400 });
+            return NextResponse.json(
+                { error: "Invalid 'options' format. It must be an object with key-value pairs." },
+                { status: 400 }
+            );
         }
 
         // Create the product
@@ -62,48 +67,68 @@ export const POST = async (req: NextRequest) => {
             })
         );
 
-        // // Create variants based on combinations
-        // await Promise.all(
-        //     combinations && combinations?.map(async (variant) => {
-        //         return prisma.variant.create({
-        //             data: {
-        //                 productId: product.id,
-        //                 ProductOption: {
-        //                     create: {
-        //                         key: 'color', // or 'size' depending on the combination
-        //                         values: [variant.details.split(', ').map(option => option.split(': ')[1])], // Extract individual option values
-        //                     },
-        //                 },
-        //                 price: variant.price,   
-        //             },
-        //         });
-        //     })
-        // );
+        console.log(optionRecords, "Option Records");
 
-        console.log( optionRecords , "sdlkfnsjkdfbjsdzfbgjdfgbd")
+        // Generate all possible combinations of options
+        const generateCombinations = (
+            records: { key: string; values: string[] }[]
+        ) => {
+            const keys = records.map((record) => record.key);
+            const values = records.map((record) => record.values);
 
-        for (const color of options.color) {
-            for (const size of options.size) {
-                await prisma.variant.create({
+            // Generate combinations using recursion
+            const combine = (arr: string[][], prefix: string[] = []): string[][] => {
+                if (arr.length === 0) return [prefix];
+                const [first, ...rest] = arr;
+                return first.flatMap((value) => combine(rest, [...prefix, value]));
+            };
+
+            return combine(values).map((combination) => {
+                const variantDetails = combination
+                    .map((value, index) => `${keys[index]}: ${value}`)
+                    .join(", ");
+                return { variantDetails, combination };
+            });
+        };
+
+        // Generate variant data
+        const variantsData = generateCombinations(
+            optionRecords.map((record) => ({
+                key: record.key,
+                values: record.values as string[], // Cast to string[] if Prisma's types are looser
+            }))
+        );
+        console.log(variantsData, "Generated Variants");
+
+        // Save variants to the database
+
+        // console.log(variantDetails)
+        
+        
+        
+        await Promise.all(
+            variantsData.map(async ({ variantDetails }) => {
+                return prisma.variant.create({
                     data: {
                         productId: product.id,
-                        price: 23,
-                        ProductOption: {
-                            // create: {
-                            //     key: 'color',
-                            //     values: [color],
-                            // }
-                        },
-                    }
+                        optionDetails:"",
+                        variantKey: variantDetails, // e.g., "color: red, size: S"
+                        price: 0, // Default price or calculated price
+                    },
                 });
-            }
-        }
+            })
+        );
 
-        console.log(product, "productproductproductproduct")
-
-        return NextResponse.json({ message: 'Product, options, and variants added successfully', product }, { status: 201 });
+        return NextResponse.json({
+            message: "Product, options, and variants added successfully",
+            optionRecords,
+            variantsData,
+        });
     } catch (error: any) {
-        console.error('Error adding product:', error);
-        return NextResponse.json({ error: error?.message || "An error occurred" }, { status: 500 });
+        console.error("Error adding product:", error);
+        return NextResponse.json(
+            { error: error?.message || "An error occurred" },
+            { status: 500 }
+        );
     }
 };

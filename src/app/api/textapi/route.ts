@@ -186,7 +186,7 @@ export const GET = async (req: NextRequest) => {
                 },
             },
         });
-
+   
         if (!product) {
             return NextResponse.json({ error: "Product not found." }, { status: 404 });
         }

@@ -30,9 +30,7 @@ export const POST = async (req: NextRequest) => {
                 { status: 400 }
             );
         }
-
         // Create the product
-
         const product = await prisma.product.create({
             data: {
                 title,
@@ -42,6 +40,17 @@ export const POST = async (req: NextRequest) => {
                 },
             },
         });
+
+        await Promise.all(
+            Object && Object.entries(options)?.map(async ([key, values]) => {
+                if (key.length < 5) {
+                    console.log("key limit ")
+                    return
+                }
+            })
+        );
+
+        
 
         const optionRecords = await Promise.all(
             Object && Object.entries(options)?.map(async ([key, values]) => {
@@ -55,10 +64,10 @@ export const POST = async (req: NextRequest) => {
             })
         );
 
+
+        
         console.log(optionRecords, "Option Records");
-
         // Generate all possible combinations of options
-
         const generateCombinations = (
             records: { key: string; values: string[] }[]
         ) => {
@@ -80,18 +89,15 @@ export const POST = async (req: NextRequest) => {
             });
 
         };
-
+        
         // Generate variant data
-
         const variantsData = generateCombinations(
             optionRecords && optionRecords?.map((record) => ({
                 key: record?.key,
                 values: record?.values as string[], // Cast to string[] if Prisma's types are looser
             }))
         );
-
         console.log(variantsData, "Generated Variants");
-
         // Save variants to the database     
         await Promise.all(
             variantsData && variantsData?.map(async ({ variantDetails, combination }) => {
@@ -107,8 +113,6 @@ export const POST = async (req: NextRequest) => {
             })
         );
 
-
-
         // await Promise.all(
         //     variantsData.map(async ({ combination }) => {
         //       const variantTitle = `${title} - ${combination.join(", ")}`; // Concatenate only values
@@ -121,9 +125,6 @@ export const POST = async (req: NextRequest) => {
         //       });
         //     })
         //   );
-
-
-
 
         return NextResponse.json({
             message: "Product, options, and variants added successfully",
@@ -181,12 +182,14 @@ export const GET = async (req: NextRequest) => {
                         productId: true,
                         optionDetails: true,
                         price: true,
-                        varianttitle: true
+                        varianttitle: true,
+                        sku: true,
+                        inventory: true
                     },
                 },
             },
         });
-   
+
         if (!product) {
             return NextResponse.json({ error: "Product not found." }, { status: 404 });
         }
@@ -217,21 +220,6 @@ export const GET = async (req: NextRequest) => {
         return NextResponse.json({ error: error.message || "An error occurred." }, { status: 500 });
     }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // export const POST = async (req: NextRequest) => {

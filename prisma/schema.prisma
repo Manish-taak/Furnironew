@@ -126,12 +126,14 @@ model Variant {
   id              Int            @id @default(autoincrement())
   productId       Int
   product         Product        @relation(fields: [productId], references: [id])
-  price           Float // Variant-specific price
-  optionDetails   Json // Stores key-value pairs, e.g., {"color": "red", "size": "M"}
+  price           Float
+  optionDetails   Json
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   ProductOption   ProductOption? @relation(fields: [productOptionId], references: [id])
   productOptionId Int?
+  sku             String?
+  inventory       String?
 }
 
 model category {

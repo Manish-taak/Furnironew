@@ -1,40 +1,28 @@
 import prisma from "@/lib";
 import { NextRequest, NextResponse } from "next/server";
-
 interface Image {
     url: string;
 }
-
 interface Options {
-    [key: string]: string[]; // E.g., { color: ["red", "blue"], size: ["S", "M", "L"] }
+    [key: string]: string[];
 }
-
-interface Variant {
-    key: string; // Key referencing the option, e.g., "color" or "size"
-    details: string; // Specific details, e.g., "color: red, size: M"
-    price: number;
-}
-
 interface ProductRequestBody {
     title: string;
     tags: string[];
     images: Image[];
     options: Options;
 }
-
 export const POST = async (req: NextRequest) => {
     try {
-        const body: ProductRequestBody = await req.json(); // Parse the request body
+        const body: ProductRequestBody = await req.json();
         const { title, tags, images, options } = body;
-
         // Validate images
-        if (!Array.isArray(images) || images.some((img) => typeof img.url !== "string")) {
+        if (!Array.isArray(images) || images?.some((img) => typeof img.url !== "string")) {
             return NextResponse.json(
                 { error: "Invalid 'images' format. It must be an array of objects with a 'url' property." },
                 { status: 400 }
             );
         }
-
         // Validate options
         if (typeof options !== "object" || Array.isArray(options)) {
             return NextResponse.json(
@@ -44,19 +32,19 @@ export const POST = async (req: NextRequest) => {
         }
 
         // Create the product
+
         const product = await prisma.product.create({
             data: {
                 title,
                 tags,
                 images: {
-                    create: images.map((img) => ({ url: img.url })),
+                    create: images?.map((img: any) => ({ url: img.url })),
                 },
             },
         });
 
-        // Add options and generate variants
         const optionRecords = await Promise.all(
-            Object.entries(options).map(async ([key, values]) => {
+            Object && Object.entries(options)?.map(async ([key, values]) => {
                 return prisma.productOption.create({
                     data: {
                         productId: product.id,
@@ -70,55 +58,50 @@ export const POST = async (req: NextRequest) => {
         console.log(optionRecords, "Option Records");
 
         // Generate all possible combinations of options
+
         const generateCombinations = (
             records: { key: string; values: string[] }[]
         ) => {
-            const keys = records.map((record) => record.key);
-            const values = records.map((record) => record.values);
-
+            const keys = records && records?.map((record: any) => record?.key);
+            const values = records && records?.map((record: any) => record?.values);
             // Generate combinations using recursion
             const combine = (arr: string[][], prefix: string[] = []): string[][] => {
                 if (arr.length === 0) return [prefix];
                 const [first, ...rest] = arr;
-                return first.flatMap((value) => combine(rest, [...prefix, value]));
+                return first.flatMap((value: any) => combine(rest, [...prefix, value]));
             };
 
-            return combine(values).map((combination) => {
+            return combine(values)?.map((combination: any) => {
                 const variantDetails = combination
-                    .map((value, index) => `${keys[index]}: ${value}`)
+                    .map((value: any, index: any) => `${keys[index]}: ${value}`)
                     .join(", ");
                 return { variantDetails, combination };
             });
         };
 
         // Generate variant data
+
         const variantsData = generateCombinations(
-            optionRecords.map((record) => ({
-                key: record.key,
-                values: record.values as string[], // Cast to string[] if Prisma's types are looser
+            optionRecords && optionRecords?.map((record) => ({
+                key: record?.key,
+                values: record?.values as string[], // Cast to string[] if Prisma's types are looser
             }))
         );
+
         console.log(variantsData, "Generated Variants");
 
-        // Save variants to the database
-
-        // console.log(variantDetails)
-        
-        
-        
+        // Save variants to the database     
         await Promise.all(
-            variantsData.map(async ({ variantDetails }) => {
+            variantsData && variantsData?.map(async ({ variantDetails }) => {
                 return prisma.variant.create({
                     data: {
                         productId: product.id,
-                        optionDetails:"",
-                        variantKey: variantDetails, // e.g., "color: red, size: S"
-                        price: 0, // Default price or calculated price
+                        optionDetails: variantDetails,
+                        price: 0,
                     },
                 });
             })
         );
-
         return NextResponse.json({
             message: "Product, options, and variants added successfully",
             optionRecords,
@@ -130,5 +113,84 @@ export const POST = async (req: NextRequest) => {
             { error: error?.message || "An error occurred" },
             { status: 500 }
         );
+    }
+};
+
+
+
+
+// get data by id 
+// GET /api/textapi?productId=1
+
+export const GET = async (req: NextRequest) => {
+    try {
+        // Parse query parameters if needed
+        const { searchParams } = new URL(req.url);
+        const productId = searchParams.get("productId");
+
+        if (!productId) {
+            return NextResponse.json({ error: "Product ID is required." }, { status: 400 });
+        }
+
+        // Fetch product details, options, and variants
+        // const product = await prisma.product.findUnique({
+        //     where: {
+        //         id: parseInt(productId),
+        //     },
+        //     select:{
+
+        //     },
+        //     include: {
+        //         images: true,
+        //         options: true,
+        //         variants: true,
+        //     },
+        // });
+
+        const product = await prisma.product.findUnique({
+            where: {
+                id: parseInt(productId),
+            },
+            select: {
+                id: true,
+                variants: {
+                    select: {
+                        productOptionId: true,
+                        productId: true,
+                        optionDetails: true,
+                        price: true
+                    }
+                },
+            },
+        });
+
+        if (!product) {
+            return NextResponse.json({ error: "Product not found." }, { status: 404 });
+        }
+
+        // // Format the response
+        // const responseData = {
+        //     id: product.id,
+        //     title: product.title,
+        //     tags: product.tags,
+        //     images: product.images,
+        //     options: product.options?.map((option: any) => ({
+        //         key: option.key,
+        //         values: option.values,
+        //     })),
+        //     variants: product.variants?.map((variant: any) => ({
+        //         id: variant.id,
+        //         key: variant.variantKey,
+        //         details: variant.optionDetails,
+        //         price: variant.price,
+        //     })),
+        //     createdAt: product.createdAt,
+        //     updatedAt: product.updatedAt,
+        // };
+
+        return NextResponse.json(product, { status: 200 });
+    } catch (error: any) {
+        console.error("Error fetching product:", error);
+        return NextResponse.json({ error: error.message || "An error occurred." }, { status: 500 });
     }
 };

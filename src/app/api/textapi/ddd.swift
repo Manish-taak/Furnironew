@@ -1,12 +1,3 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
-}
-
 model User {
   id            Int        @id @default(autoincrement())
   email         String?    @unique
@@ -96,15 +87,15 @@ model Product {
   createdAt    DateTime            @default(now())
   title        String
   updatedAt    DateTime            @updatedAt
-  favoriteId   Int?   
+  favoriteId   Int?
   cartItems    CartItem[]
   Favorite     Favorite?           @relation(fields: [favoriteId], references: [id])
   comparisonsA ProductComparison[] @relation("ProductA")
   comparisonsB ProductComparison[] @relation("ProductB")
   images       ProductImage[]
   tags         Json
-  options      ProductOption[] 
-  variants     Variant[]
+  options      ProductOption[] // Relation to ProductOption
+  variants     Variant[] // Relation to Variants
 
   @@index([favoriteId], map: "Product_favoriteId_fkey")
 }
@@ -127,8 +118,8 @@ model Variant {
   price           Float // Variant-specific price
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  productOptionId Int
   ProductOption   ProductOption @relation(fields: [productOptionId], references: [id])
+  productOptionId Int
 }
 
 model category {

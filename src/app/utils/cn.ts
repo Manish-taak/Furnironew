@@ -1,12 +1,24 @@
-import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import clsx, { ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+/**
+ * Utility function to merge conditional Tailwind CSS class names.
+ * Uses clsx to handle conditional classnames and twMerge to merge conflicting ones.
+ * 
+ * @param inputs - A variable number of class values (strings, arrays, objects, etc.)
+ * @returns A merged string of class names.
+ */
+export function cn(...inputs: ClassValue[]) {
+    // clsx combines class names conditionally, and twMerge ensures proper handling of conflicting Tailwind classes
+    return twMerge(clsx(inputs));
+}
 
 /**
- * Combines class names using `clsx` and merges Tailwind CSS classes with `twMerge`.
- *
- * @param {Array<string | undefined | null | false>} inputs - Class names or conditions for class names.
- * @returns {string} - The combined and merged class names.
+ * Formats a date string into 'DD-MM-YYYY' format.
+ * 
+ * @param dateString - The input date string.
+ * @returns A formatted date string in 'DD-MM-YYYY' format.
  */
-export function cn(...inputs: Array<string | undefined | null | false>): string {
-  return twMerge(clsx(...inputs));
-}
+export const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-GB").format(date);
+};

@@ -124,14 +124,14 @@ model ProductOption {
 model Variant {
   id              Int            @id @default(autoincrement())
   productId       Int
-  price           Float
+  varianttitle    String?
   optionDetails   Json
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   productOptionId Int?
-  inventory       String?
+  price           Float
   sku             String?
-  varianttitle    String?
+  inventory       String?
   images          ProductImage[]
   product         Product        @relation(fields: [productId], references: [id])
   ProductOption   ProductOption? @relation(fields: [productOptionId], references: [id])

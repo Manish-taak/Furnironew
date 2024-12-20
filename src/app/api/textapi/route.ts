@@ -22,10 +22,10 @@ export const POST = async (req: NextRequest) => {
         const body: ProductRequestBody & {
             varientdata: Record<string, { stock: number; sku: string; price: number, images: [] }>
         } = await req.json();
+
         const { title, tags, images, options, varientdata } = body;
 
-        // Validate images
-        if (!Array.isArray(images) || images?.some((img) => typeof img.url !== "string")) {
+        if (!Array.isArray(images) || images?.some((img: any) => typeof img.url !== "string")) {
             return NextResponse.json(
                 { error: "Invalid 'images' format. It must be an array of objects with a 'url' property." },
                 { status: 400 }
@@ -70,11 +70,6 @@ export const POST = async (req: NextRequest) => {
                 tags,
             },
         });
-
-
-
-
-
 
         await Promise.all(
             Object && Object.entries(options)?.map(async ([key, values]) => {
@@ -134,9 +129,8 @@ export const POST = async (req: NextRequest) => {
         await Promise.all(
             variantsData && variantsData?.map(async ({ variantDetails, combination }) => {
                 const variantTitle = `${title} - ${combination.join("-")}`;
-                const stockKey = combination.join(","); // Match with the inventory key
+                const stockKey = combination.join(",");
                 const inventoryData = varientdata[stockKey] || { stock: 0, sku: "", price: 0 };
-
 
                 return prisma.variant.create({
                     data: {

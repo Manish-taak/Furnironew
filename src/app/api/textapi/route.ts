@@ -165,6 +165,9 @@ export const POST = async (req: NextRequest) => {
     }
 };
 
+
+
+// get products by id 
 export const GET = async (req: NextRequest) => {
     try {
         const { searchParams } = new URL(req.url);
@@ -181,6 +184,7 @@ export const GET = async (req: NextRequest) => {
             select: {
                 variants: {
                     select: {
+                        id: true,
                         productId: true,
                         optionDetails: true,
                         price: true,
@@ -202,3 +206,62 @@ export const GET = async (req: NextRequest) => {
         return NextResponse.json({ error: error.message || "An error occurred." }, { status: 500 });
     }
 };
+
+
+
+// export default async function DELETE(req: NextRequest) {
+export const DELETE = async (req: NextRequest) => {
+    console.log("sdfjsdfgshdfgs")
+    if (req.method === 'DELETE') {
+        const { searchParams } = new URL(req.url);
+        const productId = searchParams.get('productId');
+        const variantId = searchParams.get('variantId');
+
+
+        console.log(productId, variantId, "variantIdvariantId")
+
+
+        // Validate inputs
+        if (!productId || !variantId) {
+            return NextResponse.json(
+                { error: 'Product ID and Variant ID are required as query parameters.' },
+                { status: 400 }
+            );
+        }
+
+        try {
+            // Delete the variant
+            const result = await prisma.variant.deleteMany({
+                where: {
+                    id: Number(variantId),
+                    productId: Number(productId)
+                },
+            });
+
+            // Check if any variant was deleted
+            if (result.count === 0) {
+                return NextResponse.json(
+                    { error: 'Variant not found for the given product ID.' },
+                    { status: 404 }
+                );
+            }
+
+            return NextResponse.json(
+                { success: true, message: 'Variant deleted successfully.' },
+                { status: 200 }
+            );
+
+        } catch (error) {
+            console.error('Error deleting variant:', error);
+            return NextResponse.json(
+                { error: 'Failed to delete variant.' },
+                { status: 500 }
+            );
+        }
+    } else {
+        return NextResponse.json(
+            { error: 'Method not allowed. Use DELETE.' },
+            { status: 405 }
+        );
+    }
+}

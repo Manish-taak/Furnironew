@@ -16,6 +16,7 @@ interface ProductRequestBody {
     stock: string
 }
 
+
 export const POST = async (req: NextRequest) => {
     try {
         const body: ProductRequestBody & {
@@ -31,6 +32,7 @@ export const POST = async (req: NextRequest) => {
             );
         }
 
+        // Validate options
         if (typeof options !== "object" || Array.isArray(options)) {
             return NextResponse.json(
                 { error: "Invalid 'options' format. It must be an object with key-value pairs." },
@@ -38,19 +40,7 @@ export const POST = async (req: NextRequest) => {
             );
         }
 
-        if (
-            typeof options !== "object" ||
-            Array.isArray(options) ||
-            Object.keys(options).length > 5 ||
-            Object.values(options).some((value) => !Array.isArray(value) || value.length === 0)
-        ) {
-            return NextResponse.json(
-                {
-                    error: "Invalid 'options' format. Maximum of 5 options are allowed, and each option must have at least one value.",
-                },
-                { status: 400 }
-            );
-        }
+
 
         if (
             typeof varientdata !== "object" ||
@@ -73,6 +63,7 @@ export const POST = async (req: NextRequest) => {
             );
         }
 
+        // Create the product
         const product = await prisma.product.create({
             data: {
                 title,
@@ -101,6 +92,12 @@ export const POST = async (req: NextRequest) => {
             })
         );
 
+
+
+        console.log(optionRecords, "Option Records");
+
+        // Generate all possible combinations of options
+
         const generateCombinations = (
             records: { key: string; values: string[] }[]
         ) => {
@@ -126,7 +123,9 @@ export const POST = async (req: NextRequest) => {
                 values: record.values as string[],
             }))
         );
+        console.log(varientdata, "Generated Variants");
 
+        // Save variants to the database with inventory handling
         await Promise.all(
             variantsData && variantsData?.map(async ({ variantDetails, combination }) => {
                 const variantTitle = `${title} - ${combination.join("-")}`;
@@ -170,6 +169,7 @@ export const POST = async (req: NextRequest) => {
 // get products by id 
 export const GET = async (req: NextRequest) => {
     try {
+        // Parse query parameters if needed
         const { searchParams } = new URL(req.url);
         const productId = searchParams.get("productId");
 
@@ -200,6 +200,27 @@ export const GET = async (req: NextRequest) => {
         if (!product) {
             return NextResponse.json({ error: "Product not found." }, { status: 404 });
         }
+
+        // // Format the response
+        // const responseData = {
+        //     id: product.id,
+        //     title: product.title,
+        //     tags: product.tags,
+        //     images: product.images,
+        //     options: product.options?.map((option: any) => ({
+        //         key: option.key,
+        //         values: option.values,
+        //     })),
+        //     variants: product.variants?.map((variant: any) => ({
+        //         id: variant.id,
+        //         key: variant.variantKey,
+        //         details: variant.optionDetails,
+        //         price: variant.price,
+        //     })),
+        //     createdAt: product.createdAt,
+        //     updatedAt: product.updatedAt,
+        // };
+
         return NextResponse.json(product, { status: 200 });
     } catch (error: any) {
         console.error("Error fetching product:", error);

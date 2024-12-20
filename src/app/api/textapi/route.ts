@@ -16,7 +16,6 @@ interface ProductRequestBody {
     stock: string
 }
 
-
 export const POST = async (req: NextRequest) => {
     try {
         const body: ProductRequestBody & {
@@ -32,15 +31,12 @@ export const POST = async (req: NextRequest) => {
             );
         }
 
-        // Validate options
         if (typeof options !== "object" || Array.isArray(options)) {
             return NextResponse.json(
                 { error: "Invalid 'options' format. It must be an object with key-value pairs." },
                 { status: 400 }
             );
         }
-
-
 
         if (
             typeof varientdata !== "object" ||
@@ -63,7 +59,7 @@ export const POST = async (req: NextRequest) => {
             );
         }
 
-        // Create the product
+
         const product = await prisma.product.create({
             data: {
                 title,
@@ -92,12 +88,6 @@ export const POST = async (req: NextRequest) => {
             })
         );
 
-
-
-        console.log(optionRecords, "Option Records");
-
-        // Generate all possible combinations of options
-
         const generateCombinations = (
             records: { key: string; values: string[] }[]
         ) => {
@@ -123,9 +113,7 @@ export const POST = async (req: NextRequest) => {
                 values: record.values as string[],
             }))
         );
-        console.log(varientdata, "Generated Variants");
 
-        // Save variants to the database with inventory handling
         await Promise.all(
             variantsData && variantsData?.map(async ({ variantDetails, combination }) => {
                 const variantTitle = `${title} - ${combination.join("-")}`;
@@ -164,12 +152,8 @@ export const POST = async (req: NextRequest) => {
     }
 };
 
-
-
-// get products by id 
 export const GET = async (req: NextRequest) => {
     try {
-        // Parse query parameters if needed
         const { searchParams } = new URL(req.url);
         const productId = searchParams.get("productId");
 
@@ -201,26 +185,6 @@ export const GET = async (req: NextRequest) => {
             return NextResponse.json({ error: "Product not found." }, { status: 404 });
         }
 
-        // // Format the response
-        // const responseData = {
-        //     id: product.id,
-        //     title: product.title,
-        //     tags: product.tags,
-        //     images: product.images,
-        //     options: product.options?.map((option: any) => ({
-        //         key: option.key,
-        //         values: option.values,
-        //     })),
-        //     variants: product.variants?.map((variant: any) => ({
-        //         id: variant.id,
-        //         key: variant.variantKey,
-        //         details: variant.optionDetails,
-        //         price: variant.price,
-        //     })),
-        //     createdAt: product.createdAt,
-        //     updatedAt: product.updatedAt,
-        // };
-
         return NextResponse.json(product, { status: 200 });
     } catch (error: any) {
         console.error("Error fetching product:", error);
@@ -228,21 +192,12 @@ export const GET = async (req: NextRequest) => {
     }
 };
 
-
-
-// export default async function DELETE(req: NextRequest) {
 export const DELETE = async (req: NextRequest) => {
-    console.log("sdfjsdfgshdfgs")
     if (req.method === 'DELETE') {
         const { searchParams } = new URL(req.url);
         const productId = searchParams.get('productId');
         const variantId = searchParams.get('variantId');
 
-
-        console.log(productId, variantId, "variantIdvariantId")
-
-
-        // Validate inputs
         if (!productId || !variantId) {
             return NextResponse.json(
                 { error: 'Product ID and Variant ID are required as query parameters.' },
@@ -251,7 +206,6 @@ export const DELETE = async (req: NextRequest) => {
         }
 
         try {
-            // Delete the variant
             const result = await prisma.variant.deleteMany({
                 where: {
                     id: Number(variantId),
@@ -259,7 +213,6 @@ export const DELETE = async (req: NextRequest) => {
                 },
             });
 
-            // Check if any variant was deleted
             if (result.count === 0) {
                 return NextResponse.json(
                     { error: 'Variant not found for the given product ID.' },
@@ -286,3 +239,112 @@ export const DELETE = async (req: NextRequest) => {
         );
     }
 }
+
+
+
+
+
+
+// update product 
+export const PUT = async (req: NextRequest) => {
+    try {
+        const body: Partial<{
+            productId: string;
+            title: string;
+            tags: string[];
+            options: Record<string, string[]>;
+            varientdata: Record<string, { stock: number; sku: string; price: number; images: { url: string }[] }>;
+        }> = await req.json();
+
+        const { productId, title, tags, options, varientdata } = body;
+
+        if (!productId) {
+            return NextResponse.json(
+                { error: "Product ID is required to perform an update." },
+                { status: 400 }
+            );
+        }
+
+        if (title || tags) {
+            await prisma.product.update({
+                where: { id: Number(productId) },
+                data: {
+                    ...(title && { title }),
+                    ...(tags && { tags }),
+                },
+            });
+        }
+
+        if (options) {
+            await prisma.productOption.deleteMany({ where: { productId: Number(productId) } });
+
+            await Promise.all(
+                Object.entries(options).map(([key, values]) =>
+                    prisma.productOption.create({
+                        data: {
+                            productId: Number(productId),
+                            key,
+                            values,
+                        },
+                    })
+                )
+            );
+        }
+
+        if (varientdata) {
+            const existingVariants = await prisma.variant.findMany({
+                where: { productId: Number(productId) },
+            });
+
+            await Promise.all(
+                Object.entries(varientdata).map(async ([variantKey, variantData]) => {
+                    const existingVariant = existingVariants.find((v: any) => v.optionDetails.includes(variantKey));
+
+                    if (existingVariant) {
+                        await prisma.variant.update({
+                            where: { id: existingVariant.id },
+                            data: {
+                                price: variantData.price,
+                                inventory: variantData.stock.toString(),
+                                sku: variantData.sku,
+                                images: {
+                                    deleteMany: {}, // Delete old images
+                                    create: variantData.images?.map((image) => ({ url: image.url })),
+                                },
+                            },
+                        });
+                    }
+
+                    else {
+                        await prisma.variant.create({
+                            data: {
+                                productId: Number(productId),
+                                optionDetails: variantKey,
+                                varianttitle: `${title || ""} - ${variantKey.split(",").join(" - ")}`,
+                                price: variantData.price,
+                                inventory: variantData.stock.toString(),
+                                sku: variantData.sku,
+                                images: {
+                                    create: variantData.images?.map((image: any) => ({ url: image.url })),
+                                },
+                            },
+                        });
+                    }
+                })
+            );
+        }
+
+        console.log(varientdata, "varientdatavarientdata")
+
+        return NextResponse.json({
+            message: "Product, options, and variants updated successfully.",
+        });
+
+    } catch (error: any) {
+        console.error("Error updating product:", error);
+        return NextResponse.json(
+            { error: error?.message || "An error occurred" },
+            { status: 500 }
+        );
+    }
+};

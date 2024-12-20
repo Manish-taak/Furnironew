@@ -100,10 +100,10 @@ model Product {
 
   comparisonsA ProductComparison[] @relation("ProductA")
   comparisonsB ProductComparison[] @relation("ProductB")
-  images       ProductImage[]
-  options      ProductOption[]
-  variants     Variant[]
-  cartItems    CartItem[]
+
+  options   ProductOption[]
+  variants  Variant[]
+  cartItems CartItem[]
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
@@ -115,8 +115,8 @@ model ProductOption {
   id        Int       @id @default(autoincrement())
   productId Int
   product   Product   @relation(fields: [productId], references: [id])
-  key       String 
-  values    Json 
+  key       String
+  values    Json
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   variants  Variant[]
@@ -135,6 +135,7 @@ model Variant {
   price           Float
   sku             String?
   inventory       String?
+  images          ProductImage[]
 }
 
 model category {
@@ -144,12 +145,10 @@ model category {
 }
 
 model ProductImage {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   url       String
-  productId Int
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@index([productId], map: "ProductImage_productId_fkey")
+  Variant   Variant? @relation(fields: [variantId], references: [id])
+  variantId Int?
 }
 
 model ProductComparison {

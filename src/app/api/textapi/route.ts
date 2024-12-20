@@ -3,19 +3,157 @@ import { NextRequest, NextResponse } from "next/server";
 interface Image {
     url: string;
 }
+
 interface Options {
     [key: string]: string[];
 }
+
 interface ProductRequestBody {
     title: string;
     tags: string[];
     images: Image[];
     options: Options;
+    stock: string
 }
+
+// export const POST = async (req: NextRequest) => {
+//     try {
+//         const body: ProductRequestBody = await req.json();
+//         const { title, tags, images, options } = body;
+//         // Validate images
+//         if (!Array.isArray(images) || images?.some((img) => typeof img.url !== "string")) {
+//             return NextResponse.json(
+//                 { error: "Invalid 'images' format. It must be an array of objects with a 'url' property." },
+//                 { status: 400 }
+//             );
+//         }
+//         // Validate options
+//         if (typeof options !== "object" || Array.isArray(options)) {
+//             return NextResponse.json(
+//                 { error: "Invalid 'options' format. It must be an object with key-value pairs." },
+//                 { status: 400 }
+//             );
+//         }
+
+//         // Create the product
+
+//         const product = await prisma.product.create({
+//             data: {
+//                 title,
+//                 tags,
+//                 images: {
+//                     create: images?.map((img: any) => ({ url: img.url })),
+//                 },
+//             },
+//         });
+
+//         const optionRecords = await Promise.all(
+//             Object && Object.entries(options)?.map(async ([key, values]) => {
+//                 return prisma.productOption.create({
+//                     data: {
+//                         productId: product.id,
+//                         key,
+//                         values,
+//                     },
+//                 });
+//             })
+//         );
+
+//         console.log(optionRecords, "Option Records");
+
+//         // Generate all possible combinations of options
+
+//         const generateCombinations = (
+//             records: { key: string; values: string[] }[]
+//         ) => {
+//             const keys = records && records?.map((record: any) => record?.key);
+//             const values = records && records?.map((record: any) => record?.values);
+//             // Generate combinations using recursion
+//             const combine = (arr: string[][], prefix: string[] = []): string[][] => {
+//                 if (arr.length === 0) return [prefix];
+//                 const [first, ...rest] = arr;
+//                 return first.flatMap((value: any) => combine(rest, [...prefix, value]));
+//             };
+
+
+//             return combine(values)?.map((combination: any) => {
+//                 const variantDetails = combination
+//                     .map((value: any, index: any) => `${keys[index]}: ${value}`)
+//                     .join(", ");
+//                 return { variantDetails, combination };
+//             });
+
+//         };
+
+//         // Generate variant data
+
+//         const variantsData = generateCombinations(
+//             optionRecords && optionRecords?.map((record) => ({
+//                 key: record?.key,
+//                 values: record?.values as string[], // Cast to string[] if Prisma's types are looser
+//             }))
+//         );
+
+//         console.log(variantsData, "Generated Variants");
+
+//         // Save variants to the database     
+//         await Promise.all(
+//             variantsData && variantsData?.map(async ({ variantDetails, combination }) => {
+//                 const variantTitle = `${title} - ${combination.join("-")}`;  // Concatenate only values
+//                 return prisma.variant.create({
+//                     data: {
+//                         productId: product.id,
+//                         optionDetails: variantDetails,
+//                         varianttitle: variantTitle,
+//                         price: 0,
+//                     },
+//                 });
+//             })
+//         );
+
+
+
+//         // await Promise.all(
+//         //     variantsData.map(async ({ combination }) => {
+//         //       const variantTitle = `${title} - ${combination.join(", ")}`; // Concatenate only values
+//         //       return prisma.variant.create({
+//         //         data: {
+//         //           productId: product.id,
+//         //           optionDetails: variantTitle, // Save the variant title with values only
+//         //           price: price, // Assign the product price
+//         //         },
+//         //       });
+//         //     })
+//         //   );
+
+
+
+
+//         return NextResponse.json({
+//             message: "Product, options, and variants added successfully",
+//             optionRecords,
+//             variantsData,
+//         });
+//     } catch (error: any) {
+//         console.error("Error adding product:", error);
+//         return NextResponse.json(
+//             { error: error?.message || "An error occurred" },
+//             { status: 500 }
+//         );
+//     }
+// };
+
+
+
+
+// get data by id 
+// GET /api/textapi?productId=1
 export const POST = async (req: NextRequest) => {
     try {
-        const body: ProductRequestBody = await req.json();
-        const { title, tags, images, options } = body;
+        const body: ProductRequestBody & { varientdata: Record<string, number> } = await req.json();
+        const { title, tags, images, options, varientdata, stock } = body;
+        console.log(varientdata, "varientdatavarientdata")
+
         // Validate images
         if (!Array.isArray(images) || images?.some((img) => typeof img.url !== "string")) {
             return NextResponse.json(
@@ -23,6 +161,7 @@ export const POST = async (req: NextRequest) => {
                 { status: 400 }
             );
         }
+
         // Validate options
         if (typeof options !== "object" || Array.isArray(options)) {
             return NextResponse.json(
@@ -30,6 +169,7 @@ export const POST = async (req: NextRequest) => {
                 { status: 400 }
             );
         }
+
         // Create the product
         const product = await prisma.product.create({
             data: {
@@ -50,10 +190,8 @@ export const POST = async (req: NextRequest) => {
             })
         );
 
-        
-
         const optionRecords = await Promise.all(
-            Object && Object.entries(options)?.map(async ([key, values]) => {
+            Object.entries(options)?.map(async ([key, values]) => {
                 return prisma.productOption.create({
                     data: {
                         productId: product.id,
@@ -64,67 +202,56 @@ export const POST = async (req: NextRequest) => {
             })
         );
 
-
-        
         console.log(optionRecords, "Option Records");
         // Generate all possible combinations of options
         const generateCombinations = (
             records: { key: string; values: string[] }[]
         ) => {
-            const keys = records && records?.map((record: any) => record?.key);
-            const values = records && records?.map((record: any) => record?.values);
-            // Generate combinations using recursion
+            const keys = records?.map((record) => record?.key);
+            const values = records?.map((record) => record?.values);
+
             const combine = (arr: string[][], prefix: string[] = []): string[][] => {
                 if (arr.length === 0) return [prefix];
                 const [first, ...rest] = arr;
-                return first.flatMap((value: any) => combine(rest, [...prefix, value]));
+                return first.flatMap((value) => combine(rest, [...prefix, value]));
             };
 
-
-            return combine(values)?.map((combination: any) => {
+            return combine(values)?.map((combination) => {
                 const variantDetails = combination
-                    .map((value: any, index: any) => `${keys[index]}: ${value}`)
+                    .map((value, index) => `${keys[index]}: ${value}`)
                     .join(", ");
                 return { variantDetails, combination };
             });
-
         };
-        
-        // Generate variant data
         const variantsData = generateCombinations(
-            optionRecords && optionRecords?.map((record) => ({
+            optionRecords?.map((record) => ({
                 key: record?.key,
-                values: record?.values as string[], // Cast to string[] if Prisma's types are looser
+                values: record?.values as string[],
             }))
         );
         console.log(variantsData, "Generated Variants");
-        // Save variants to the database     
+
+        // Save variants to the database with inventory handling
         await Promise.all(
-            variantsData && variantsData?.map(async ({ variantDetails, combination }) => {
-                const variantTitle = `${title} - ${combination.join("-")}`;  // Concatenate only values
+            variantsData?.map(async ({ variantDetails, combination }) => {
+                const variantTitle = `${title} - ${combination.join("-")}`;
+
+                // const stockKey = combination.join(","); // Match with the inventory key
+                // const stock = inventory[stockKey] || "0"; // Use inventory quantity or default to 0
+
                 return prisma.variant.create({
                     data: {
                         productId: product.id,
                         optionDetails: variantDetails,
                         varianttitle: variantTitle,
                         price: 0,
-                    },
+                        sku: "",
+                        inventory: "0"
+                        // inventory: String(stock) // Save inventory quantity
+                    }
                 });
             })
         );
-
-        // await Promise.all(
-        //     variantsData.map(async ({ combination }) => {
-        //       const variantTitle = `${title} - ${combination.join(", ")}`; // Concatenate only values
-        //       return prisma.variant.create({
-        //         data: {
-        //           productId: product.id,
-        //           optionDetails: variantTitle, // Save the variant title with values only
-        //           price: price, // Assign the product price
-        //         },
-        //       });
-        //     })
-        //   );
 
         return NextResponse.json({
             message: "Product, options, and variants added successfully",
@@ -140,12 +267,6 @@ export const POST = async (req: NextRequest) => {
     }
 };
 
-
-
-
-// get data by id 
-// GET /api/textapi?productId=1
-
 export const GET = async (req: NextRequest) => {
     try {
         // Parse query parameters if needed
@@ -155,21 +276,6 @@ export const GET = async (req: NextRequest) => {
         if (!productId) {
             return NextResponse.json({ error: "Product ID is required." }, { status: 400 });
         }
-
-        // Fetch product details, options, and variants
-
-        // const product = await prisma.product.findUnique({
-        //     where: {
-        //         id: parseInt(productId),
-        //     },
-        //     select:{
-        //     },
-        //     include: {
-        //         images: true,
-        //         options: true,
-        //         variants: true,
-        //     },
-        // });
 
         const product = await prisma.product.findUnique({
             where: {

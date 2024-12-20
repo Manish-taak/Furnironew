@@ -19,11 +19,12 @@ interface ProductRequestBody {
 export const POST = async (req: NextRequest) => {
     try {
         const body: ProductRequestBody & {
-            varientdata: Record<string, { stock: number; sku: string; price: number, images: string[] }>
+            varientdata: Record<string, { stock: number; sku: string; price: number, images: [] }>
         } = await req.json();
+
         const { title, tags, images, options, varientdata } = body;
 
-        if (!Array.isArray(images) || images?.some((img) => typeof img.url !== "string")) {
+        if (!Array.isArray(images) || images?.some((img: any) => typeof img.url !== "string")) {
             return NextResponse.json(
                 { error: "Invalid 'images' format. It must be an array of objects with a 'url' property." },
                 { status: 400 }
@@ -79,6 +80,15 @@ export const POST = async (req: NextRequest) => {
             },
         });
 
+        await Promise.all(
+            Object && Object.entries(options)?.map(async ([key, values]) => {
+                if (key.length < 5) {
+                    console.log("key limit ")
+                    return
+                }
+            })
+        );
+
         const optionRecords = await Promise.all(
             Object.entries(options).map(async ([key, values]) => {
                 return prisma.productOption.create({
@@ -120,9 +130,8 @@ export const POST = async (req: NextRequest) => {
         await Promise.all(
             variantsData && variantsData?.map(async ({ variantDetails, combination }) => {
                 const variantTitle = `${title} - ${combination.join("-")}`;
-                const stockKey = combination.join(","); // Match with the inventory key
-                const inventoryData = varientdata[stockKey] || { stock: 0, sku: "", price: 0, images };
-
+                const stockKey = combination.join(",");
+                const inventoryData = varientdata[stockKey] || { stock: 0, sku: "", price: 0 };
 
                 return prisma.variant.create({
                     data: {
@@ -133,7 +142,7 @@ export const POST = async (req: NextRequest) => {
                         inventory: inventoryData.stock.toString(),
                         sku: inventoryData.sku,
                         images: {
-                            create: inventoryData && inventoryData?.images.map((image: any) => ({
+                            create: inventoryData && inventoryData?.images?.map((image: any) => ({
                                 url: image.url,
                             })),
                         },

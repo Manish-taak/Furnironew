@@ -302,7 +302,7 @@ export const PUT = async (req: NextRequest) => {
 
 
         console.log("check")
-        
+
         if (varientdata) {
 
             const existingVariants = await prisma.variant.findMany({

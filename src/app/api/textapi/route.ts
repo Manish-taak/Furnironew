@@ -107,6 +107,7 @@ export const POST = async (req: NextRequest) => {
                 return { variantDetails, combination };
             });
         };
+
         const variantsData = generateCombinations(
             optionRecords.map((record) => ({
                 key: record.key,
@@ -156,11 +157,25 @@ export const GET = async (req: NextRequest) => {
     try {
         const { searchParams } = new URL(req.url);
         const productId = searchParams.get("productId");
-
         if (!productId) {
-            return NextResponse.json({ error: "Product ID is required." }, { status: 400 });
+            const findallproducts = await prisma.product.findMany({
+                include: {
+                    variants: {
+                        select: {
+                            id: true,
+                            productId: true,
+                            optionDetails: true,
+                            price: true,
+                            varianttitle: true,
+                            sku: true,
+                            inventory: true,
+                            images: true
+                        },
+                    },
+                }
+            })
+            return NextResponse.json({ message: "Find All Products", findallproducts }, { status: 200 });
         }
-
         const product = await prisma.product.findUnique({
             where: {
                 id: parseInt(productId),
@@ -180,11 +195,9 @@ export const GET = async (req: NextRequest) => {
                 },
             },
         });
-
         if (!product) {
             return NextResponse.json({ error: "Product not found." }, { status: 404 });
         }
-
         return NextResponse.json(product, { status: 200 });
     } catch (error: any) {
         console.error("Error fetching product:", error);
@@ -240,12 +253,6 @@ export const DELETE = async (req: NextRequest) => {
     }
 }
 
-
-
-
-
-
-// update product 
 export const PUT = async (req: NextRequest) => {
     try {
         const body: Partial<{
@@ -275,6 +282,8 @@ export const PUT = async (req: NextRequest) => {
             });
         }
 
+        console.log(title, tags, "title")
+
         if (options) {
             await prisma.productOption.deleteMany({ where: { productId: Number(productId) } });
 
@@ -291,7 +300,11 @@ export const PUT = async (req: NextRequest) => {
             );
         }
 
+
+        console.log("check")
+        
         if (varientdata) {
+
             const existingVariants = await prisma.variant.findMany({
                 where: { productId: Number(productId) },
             });
@@ -299,7 +312,6 @@ export const PUT = async (req: NextRequest) => {
             await Promise.all(
                 Object.entries(varientdata).map(async ([variantKey, variantData]) => {
                     const existingVariant = existingVariants.find((v: any) => v.optionDetails.includes(variantKey));
-
                     if (existingVariant) {
                         await prisma.variant.update({
                             where: { id: existingVariant.id },
@@ -333,8 +345,6 @@ export const PUT = async (req: NextRequest) => {
                 })
             );
         }
-
-        console.log(varientdata, "varientdatavarientdata")
 
         return NextResponse.json({
             message: "Product, options, and variants updated successfully.",

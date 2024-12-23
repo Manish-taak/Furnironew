@@ -1,6 +1,5 @@
 import prisma from "@/lib";
 import { NextRequest, NextResponse } from "next/server";
-import { date, number } from "zod";
 interface Image {
     url: string;
 }
@@ -255,51 +254,782 @@ export const DELETE = async (req: NextRequest) => {
     }
 }
 
+// export const PUT = async (req: NextRequest) => {
+//     try {
+//         const body: Partial<{
+//             productId: string;
+//             title: string;
+//             tags: string[];
+//             options: Record<string, string[]>;
+//             varientdata: Record<string, { stock: number; sku: string; price: number; images: { url: string }[] }>;
+//         }> = await req.json();
+
+//         const { productId, title, tags, options, varientdata } = body;
+
+//         if (!productId) {
+//             return NextResponse.json(
+//                 { error: "Product ID is required to perform an update." },
+//                 { status: 400 }
+//             );
+//         }
+
+//         const checkdataoptions = await prisma.product.findUnique({
+//             where: {
+//                 id: Number(productId),
+//             },
+//             select: {
+//                 optiondetails: true,
+//             },
+//         });
+
+//         const areOptionsEqual =
+//             checkdataoptions &&
+//             checkdataoptions.optiondetails &&
+//             options &&
+//             Object.keys(options).every((key: any) => {
+//                 const optionDetail = checkdataoptions && checkdataoptions?.optiondetails[key];
+//                 const compareOption = options[key];
+
+//                 return (
+//                     Array.isArray(optionDetail) &&
+//                     Array.isArray(compareOption) &&
+//                     optionDetail.length === compareOption.length &&
+//                     optionDetail.every((val, index) => val === compareOption[index])
+//                 );
+//             });
+
+//         // Update title or tags if provided
+//         if (title || tags) {
+//             await prisma.product.update({
+//                 where: { id: Number(productId) },
+//                 data: {
+//                     ...(title && { title }),
+//                     ...(tags && { tags }),
+//                 },
+//             });
+//         }
+
+//         if (areOptionsEqual) {
+//             if (options) {
+
+//                 console.log(options, "optionsoptionsoptions")
+//                 await prisma.product.update({
+//                     where: {
+//                         id: Number(productId),
+//                     },
+//                     data: {
+//                         optiondetails: options,
+//                     },
+//                 });
+
+//                 await prisma.productOption.deleteMany({ where: { productId: Number(productId) } });
+
+//                 await Promise.all(
+//                     Object.entries(options)?.map(([key, values]) =>
+//                         prisma.productOption.create({
+//                             data: {
+//                                 productId: Number(productId),
+//                                 key,
+//                                 values,
+//                             },
+//                         })
+//                     )
+//                 );
+
+//                 const updatedVariants = Object.entries(varientdata || {})?.map(([variantKey, variantData]) => ({
+//                     optionDetails: variantKey,
+//                     title: `${title || ""} - ${variantKey.split(",").join(" - ")}`,
+//                     price: variantData.price,
+//                     stock: variantData.stock.toString(),
+//                     sku: variantData.sku,
+//                     images: variantData.images,
+//                 }));
+
+//                 await prisma.variant.deleteMany({ where: { productId: Number(productId) } });
+
+//                 await Promise.all(
+//                     updatedVariants && updatedVariants?.map((variant) =>
+//                         prisma.variant.create({
+//                             data: {
+//                                 productId: Number(productId),
+//                                 optionDetails: variant.optionDetails,
+//                                 varianttitle: variant.title,
+//                                 price: variant.price,
+//                                 inventory: variant.stock,
+//                                 sku: variant.sku,
+//                                 images: {
+//                                     create: variant.images?.map((image) => ({ url: image.url })),
+//                                 },
+//                             },
+//                         })
+//                     )
+//                 );
+//             }
+
+//             // if (varientdata) {
+//             //     const existingVariants = await prisma.variant.findMany({
+//             //         where: { productId: Number(productId) },
+//             //     });
+
+//             //     await Promise.all(
+//             //         Object.entries(varientdata)?.map(async ([variantKey, variantData]) => {
+//             //             const existingVariant = existingVariants.find((v: any) => v.optionDetails.includes(variantKey));
+
+//             //             if (existingVariant) {
+//             //                 await prisma.variant.update({
+//             //                     where: { id: existingVariant.id },
+//             //                     data: {
+//             //                         ...(variantData.price && { price: variantData.price }),
+//             //                         ...(variantData.stock && { inventory: variantData.stock.toString() }),
+//             //                         ...(variantData.sku && { sku: variantData.sku }),
+//             //                         ...(variantData.images && {
+//             //                             images: {
+//             //                                 deleteMany: {}, // Delete old images and create nerw images 
+//             //                                 create: variantData?.images.map((image: any) => ({ url: image.url })),
+//             //                             },
+//             //                         }),
+//             //                     },
+//             //                 });
+//             //             } else {
+//             //                 await prisma.variant.create({
+//             //                     data: {
+//             //                         productId: Number(productId),
+//             //                         optionDetails: variantKey,
+//             //                         varianttitle: `${title || ""} - ${variantKey.split(",").join(" - ")}`,
+//             //                         price: variantData.price,
+//             //                         inventory: variantData.stock.toString(),
+//             //                         sku: variantData.sku,
+//             //                         images: {
+//             //                             create: variantData.images?.map((image) => ({ url: image.url })),
+//             //                         },
+//             //                     },
+//             //                 });
+//             //             }
+//             //         })
+//             //     );
+//             // }
+//         } else {
+//             // await prisma.product.update({
+//             //     where: {
+//             //         id: Number(productId),
+//             //     },
+//             //     data: {
+//             //         optiondetails: options,
+//             //     },
+//             // });
+//             // await prisma.productOption.deleteMany({ where: { productId: Number(productId) } });
+//             // const optionRecords = await Promise.all(
+//             //     Object.entries(options || {}).map(async ([key, values]) => {
+//             //         return prisma.productOption.create({
+//             //             data: {
+//             //                 productId: Number(productId),
+//             //                 key,
+//             //                 values,
+//             //             },
+//             //         });
+//             //     })
+//             // );
+//             // const generateCombinations = (
+//             //     records: { key: string; values: string[] }[]
+//             // ) => {
+//             //     const keys = records?.map((record) => record.key);
+//             //     const values = records?.map((record) => record.values);
+
+//             //     const combine = (arr: string[][], prefix: string[] = []): string[][] => {
+//             //         if (arr.length === 0) return [prefix];
+//             //         const [first, ...rest] = arr;
+//             //         return first.flatMap((value: any) => combine(rest, [...prefix, value]));
+//             //     };
+
+//             //     return combine(values).map((combination) => {
+//             //         const variantDetails = combination
+//             //             .map((value: any, index: any) => `${keys[index]}: ${value}`)
+//             //             .join(", ");
+//             //         return { variantDetails, combination };
+//             //     });
+//             // };
+
+//             // const variantsData = generateCombinations(
+//             //     optionRecords.map((record) => ({
+//             //         key: record.key,
+//             //         values: record.values as string[],
+//             //     }))
+//             // );
+
+//             // await prisma.variant.deleteMany({ where: { productId: Number(productId) } });
+
+//             // await Promise.all(
+//             //     variantsData.map(async ({ variantDetails, combination }) => {
+//             //         const variantTitle = `${title} - ${combination.join("-")}`;
+//             //         const stockKey = combination.join(",");
+//             //         const inventoryData = varientdata[stockKey] || { stock: 0, sku: "", price: 0 };
+
+//             //         return prisma.variant.create({
+//             //             data: {
+//             //                 productId: Number(productId),
+//             //                 optionDetails: variantDetails,
+//             //                 varianttitle: variantTitle,
+//             //                 price: inventoryData.price,
+//             //                 inventory: inventoryData.stock.toString(),
+//             //                 sku: inventoryData.sku,
+//             //                 images: {
+//             //                     create: inventoryData.images?.map((image: any) => ({
+//             //                         url: image.url,
+//             //                     })),
+//             //                 },
+//             //             },
+//             //         });
+
+//             //     })
+//             // );
+//         }
+
+//         return NextResponse.json({
+//             message: areOptionsEqual ? "Product and variants updated successfully." : "Product, options, and variants created successfully.",
+//         });
+
+//     } catch (error: any) {
+//         console.error("Error updating product:", error);
+//         return NextResponse.json(
+//             { error: error?.message || "An error occurred" },
+//             { status: 500 }
+//         );
+
+//     }
+// };
+
+// export const PUT = async (req: NextRequest) => {
+//     try {
+//         const body: {
+//             productId: string;
+//             options: Record<string, string[]>;
+//             varientdata: Record<string, { stock: number; sku: string; price: number; images: [] }>
+//         } = await req.json();
+
+//         const { productId, options, varientdata } = body;
+
+//         if (!productId || typeof productId !== "string") {
+//             return NextResponse.json(
+//                 { error: "Invalid 'productId'. It must be a non-empty string." },
+//                 { status: 400 }
+//             );
+//         }
+
+//         const existingVariants = await prisma.variant.findMany({
+//             where: { productId: Number(productId) },
+//             include: { images: true },
+//         });
+
+//         const optionRecords = Object.entries(options).map(([key, values]) => ({ key, values }));
+
+//         const generateCombinations = (
+//             records: { key: string; values: string[] }[]
+//         ) => {
+//             const keys = records.map((record) => record.key);
+//             const values = records.map((record) => record.values);
+
+//             const combine = (arr: string[][], prefix: string[] = []): string[][] => {
+//                 if (arr.length === 0) return [prefix];
+//                 const [first, ...rest] = arr;
+//                 return first.flatMap((value) => combine(rest, [...prefix, value]));
+//             };
+
+//             return combine(values).map((combination) => {
+//                 const variantDetails = combination
+//                     .map((value, index) => `${keys[index]}: ${value}`)
+//                     .join(", ");
+//                 return { variantDetails, combination };
+//             });
+//         };
+
+//         const updatedVariants = generateCombinations(optionRecords);
+
+//         const existingCombinationKeys = new Set(
+//             existingVariants.map((variant: any) =>
+//                 variant.optionDetails
+//                     .split(", ")
+//                     .map((detail: any) => detail.split(": ")[1])
+//                     .join(",")
+//             )
+//         );
+
+//         const unchangedVariants = existingVariants.filter((variant: any) => {
+//             const combinationKey = variant.optionDetails
+//                 .split(", ")
+//                 .map((detail: any) => detail.split(": ")[1])
+//                 .join(",");
+//             return updatedVariants.some(({ combination }) => combination.join(",") === combinationKey);
+//         });
+
+//         const obsoleteVariants = existingVariants.filter((variant: any) => {
+//             const combinationKey = variant.optionDetails
+//                 .split(", ")
+//                 .map((detail: any) => detail.split(": ")[1])
+//                 .join(",");
+//             return !updatedVariants.some(({ combination }) => combination.join(",") === combinationKey);
+//         });
+
+//         const newCombinations = updatedVariants.filter(({ combination }) => {
+//             const key = combination.join(",");
+//             return !existingCombinationKeys.has(key);
+//         });
+
+//         // Delete obsolete variants
+//         await prisma.variant.deleteMany({
+//             where: {
+//                 id: { in: obsoleteVariants.map((variant) => variant.id) },
+//             },
+//         });
+
+//         // Update unchanged variants if needed (e.g., stock or price changes)
+//         const updatePromises = unchangedVariants.map(async (variant: any) => {
+//             const combinationKey = variant.optionDetails
+//                 .split(", ")
+//                 .map((detail: any) => detail.split(": ")[1])
+//                 .join(",");
+
+//             const inventoryData = varientdata[combinationKey] || { stock: 0, sku: "", price: 0 };
+
+//             return prisma.variant.update({
+//                 where: { id: variant.id },
+//                 data: {
+//                     price: inventoryData.price,
+//                     inventory: inventoryData.stock.toString(),
+//                     sku: inventoryData.sku,
+//                 },
+//             });
+//         });
+
+//         // Create new variants
+//         const newVariantPromises = newCombinations.map(async ({ variantDetails, combination }) => {
+//             const variantTitle = `${combination.join(" - ")}`;
+//             const stockKey = combination.join(",");
+//             const inventoryData = varientdata[stockKey] || { stock: 0, sku: "", price: 0 };
+
+//             return prisma.variant.create({
+//                 data: {
+//                     productId: Number(productId),
+//                     optionDetails: variantDetails,
+//                     varianttitle: variantTitle,
+//                     price: inventoryData.price,
+//                     inventory: inventoryData.stock.toString(),
+//                     sku: inventoryData.sku,
+//                     images: {
+//                         create: inventoryData.images?.map((image: any) => ({ url: image.url })) || [],
+//                     },
+//                 },
+//             });
+//         });
+
+//         await Promise.all([...updatePromises, ...newVariantPromises]);
+
+//         return NextResponse.json({
+//             message: "Product options and variants updated successfully",
+//             newVariants: newCombinations,
+//             deletedVariants: obsoleteVariants,
+//             updatedVariants: unchangedVariants,
+//         });
+//         //newcombinations
+//         // deletedvariants
+//         // updatedvariants
+//     } catch (error: any) {
+//         console.error("Error updating product variants:", error);
+//         return NextResponse.json(
+//             { error: error?.message || "An error occurred" },
+//             { status: 500 }
+//         );
+//     }
+// };
+
+
+
+
+// export const PUT = async (req: NextRequest) => {
+//     try {
+//         const body: {
+//             productId: string;
+//             options: Record<string, string[]>;
+//             varientdata: Record<string, { stock: number; sku: string; price: number; images: [] }>
+//         } = await req.json();
+
+//         const { productId, options, varientdata } = body;
+
+//         if (!productId || typeof productId !== "string") {
+//             return NextResponse.json(
+//                 { error: "Invalid 'productId'. It must be a non-empty string." },
+//                 { status: 400 }
+//             );
+//         }
+
+//         const existingVariants = await prisma.variant.findMany({
+//             where: { productId: Number(productId) },
+//             include: { images: true },
+//         });
+
+//         const optionRecords = Object.entries(options).map(([key, values]) => ({ key, values }));
+
+//         const generateCombinations = (
+//             records: { key: string; values: string[] }[]
+//         ) => {
+//             const keys = records.map((record) => record.key);
+//             const values = records.map((record) => record.values);
+
+//             const combine = (arr: string[][], prefix: string[] = []): string[][] => {
+//                 if (arr.length === 0) return [prefix];
+//                 const [first, ...rest] = arr;
+//                 return first.flatMap((value) => combine(rest, [...prefix, value]));
+//             };
+
+//             return combine(values).map((combination) => {
+//                 const variantDetails = combination
+//                     .map((value, index) => `${keys[index]}: ${value}`)
+//                     .join(", ");
+//                 return { variantDetails, combination };
+//             });
+//         };
+
+//         const updatedVariants = generateCombinations(optionRecords);
+
+//         const existingCombinationKeys = new Set(
+//             existingVariants.map((variant: any) =>
+//                 variant.optionDetails
+//                     .split(", ")
+//                     .map((detail: any) => detail.split(": ")[1])
+//                     .join(",")
+//             )
+//         );
+
+//         const newCombinations = updatedVariants.filter(({ combination }) => {
+//             const key = combination.join(",");
+//             return !existingCombinationKeys.has(key);
+//         });
+
+//         const updatePromises = existingVariants.map(async (variant: any) => {
+//             const combinationKey = variant.optionDetails
+//                 .split(", ")
+//                 .map((detail: any) => detail.split(": ")[1])
+//                 .join(",");
+
+//             const inventoryData = varientdata[combinationKey] || { stock: 0, sku: "", price: 0 };
+
+//             return prisma.variant.update({
+//                 where: { id: variant.id },
+//                 data: {
+//                     price: inventoryData.price,
+//                     inventory: inventoryData.stock.toString(),
+//                     sku: inventoryData.sku,
+//                 },
+//             });
+//         });
+
+//         const newVariantPromises = newCombinations?.map(async ({ variantDetails, combination }) => {
+//             const variantTitle = `${combination.join(" - ")}`;
+//             const stockKey = combination.join(",");
+//             const inventoryData = varientdata[stockKey] || { stock: 0, sku: "", price: 0 };
+
+//             return prisma.variant.create({
+//                 data: {
+//                     productId: Number(productId),
+//                     optionDetails: variantDetails,
+//                     varianttitle: variantTitle,
+//                     price: inventoryData.price,
+//                     inventory: inventoryData.stock.toString(),
+//                     sku: inventoryData.sku,
+//                     images: {
+//                         create: inventoryData.images?.map((image: any) => ({ url: image.url })) || [],
+//                     },
+//                 },
+//             });
+//         });
+
+//         await Promise.all([...updatePromises, ...newVariantPromises]);
+
+//         return NextResponse.json({
+//             message: "Product options and variants updated successfully",
+//             newVariants: newCombinations,
+//         });
+//     } catch (error: any) {
+//         console.error("Error updating product variants:", error);
+//         return NextResponse.json(
+//             { error: error?.message || "An error occurred" },
+//             { status: 500 }
+//         );
+//     }
+// };
+
+// export const PUT = async (req: NextRequest) => {
+//     try {
+//         const body: {
+//             productId: string;
+//             options: Record<string, string[]>;
+//             varientdata: Record<string, { stock: number; sku: string; price: number; images: [] }>
+//         } = await req.json();
+
+//         const { productId, options, varientdata } = body;
+
+//         if (!productId || typeof productId !== "string") {
+//             return NextResponse.json(
+//                 { error: "Invalid 'productId'. It must be a non-empty string." },
+//                 { status: 400 }
+//             );
+//         }
+
+//         const existingVariants = await prisma.variant.findMany({
+//             where: { productId: Number(productId) },
+//             include: { images: true },
+//         });
+
+//         const optionRecords = Object.entries(options).map(([key, values]) => ({ key, values }));
+
+//         const generateCombinations = (
+//             records: { key: string; values: string[] }[]
+//         ) => {
+//             const keys = records.map((record) => record.key);
+//             const values = records.map((record) => record.values);
+
+//             const combine = (arr: string[][], prefix: string[] = []): string[][] => {
+//                 if (arr.length === 0) return [prefix];
+//                 const [first, ...rest] = arr;
+//                 return first.flatMap((value: any) => combine(rest, [...prefix, value]));
+//             };
+
+//             return combine(values).map((combination) => {
+//                 const variantDetails = combination
+//                     .map((value, index) => `${keys[index]}: ${value}`)
+//                     .join(", ");
+//                 return { variantDetails, combination };
+//             });
+//         };
+
+//         const updatedVariants = generateCombinations(optionRecords);
+
+//         const existingCombinationKeys = new Set(
+//             existingVariants.map((variant: any) =>
+//                 variant.optionDetails
+//                     .split(", ")
+//                     .map((detail: any) => detail.split(": ")[1])
+//                     .join(",")
+//             )
+//         );
+
+//         const newCombinations = updatedVariants.filter(({ combination }) => {
+//             const key = combination.join(",");
+//             return !existingCombinationKeys.has(key);
+//         });
+
+//         const updatePromises = existingVariants.map(async (variant: any) => {
+//             const combinationKey = variant.optionDetails
+//                 .split(", ")
+//                 .map((detail: any) => detail.split(": ")[1])
+//                 .join(",");
+
+//             const inventoryData = varientdata[combinationKey] || { stock: 0, sku: "", price: 0 };
+
+//             return prisma.variant.update({
+//                 where: { id: variant.id },
+//                 data: {
+//                     price: inventoryData.price,
+//                     inventory: inventoryData.stock.toString(),
+//                     sku: inventoryData.sku,
+//                     images: {
+//                         deleteMany: {}, // Delete old images and create new images
+//                         create: inventoryData?.images.map((image: any) => ({ url: image.url })),
+//                     },
+//                 },
+//             });
+//         });
+
+//         const newVariantPromises = newCombinations.map(async ({ variantDetails, combination }) => {
+//             const variantTitle = `${combination.join(" - ")}`;
+//             const stockKey = combination.join(",");
+//             const inventoryData = varientdata[stockKey] || { stock: 0, sku: "", price: 0 };
+
+//             return prisma.variant.create({
+//                 data: {
+//                     productId: Number(productId),
+//                     optionDetails: variantDetails,
+//                     varianttitle: variantTitle,
+//                     price: inventoryData.price,
+//                     inventory: inventoryData.stock.toString(),
+//                     sku: inventoryData.sku,
+//                     images: {
+//                         create: inventoryData.images?.map((image: any) => ({ url: image.url })) || [],
+//                     },
+//                 },
+//             });
+//         });
+
+//         await Promise.all([...updatePromises, ...newVariantPromises]);
+
+//         return NextResponse.json({
+//             message: "Product options and variants updated successfully",
+//             newVariants: newCombinations,
+//         });
+//     } catch (error: any) {
+//         console.error("Error updating product variants:", error);
+//         return NextResponse.json(
+//             { error: error?.message || "An error occurred" },
+//             { status: 500 }
+//         );
+//     }
+// };
+
+// export const PUT = async (req: NextRequest) => {
+//     try {
+//         const body: {
+//             productId: string;
+//             options: Record<string, string[]>;
+//             varientdata: Record<string, { stock: number; sku: string; price: number; images: { url: string }[] }>;
+//             title?: string;
+//             tags?: string[];
+//         } = await req.json();
+
+//         const { productId, options, varientdata, title, tags } = body;
+
+//         if (!productId || typeof productId !== "string") {
+//             return NextResponse.json(
+//                 { error: "Invalid 'productId'. It must be a non-empty string." },
+//                 { status: 400 }
+//             );
+//         }
+
+//         if (title || tags) {
+//             await prisma.product.update({
+//                 where: { id: Number(productId) },
+//                 data: {
+//                     ...(title && { title }),
+//                     ...(tags && { tags }),
+//                 },
+//             });
+//         }
+
+//         // Fetch existing variants for the product
+//         const existingVariants = await prisma.variant.findMany({
+//             where: { productId: Number(productId) },
+//         });
+
+
+//         // Update existing variants based on provided `varientdata`
+//         await Promise.all(
+//             Object.entries(varientdata)?.map(async ([variantKey, variantData]) => {
+//                 const existingVariant = existingVariants.find((v: any) => v.optionDetails.includes(variantKey));
+
+//                 if (existingVariant) {
+//                     await prisma.variant.update({
+//                         where: { id: existingVariant.id },
+//                         data: {
+//                             ...(variantData.price && { price: variantData.price }),
+//                             ...(variantData.stock && { inventory: variantData.stock.toString() }),
+//                             ...(variantData.sku && { sku: variantData.sku }),
+//                             ...(variantData.images && {
+//                                 images: {
+//                                     deleteMany: {}, // Delete old images and create nerw images
+//                                     create: variantData?.images.map((image: any) => ({ url: image.url })),
+//                                 },
+//                             }),
+//                         },
+//                     });
+//                 }
+//             })
+//         );
+
+//         // Generate combinations for new variants
+//         const optionRecords = Object.entries(options).map(([key, values]) => ({ key, values }));
+
+//         const generateCombinations = (
+//             records: { key: string; values: string[] }[]
+//         ) => {
+//             const keys = records.map((record) => record.key);
+//             const values = records.map((record) => record.values);
+
+//             const combine = (arr: string[][], prefix: string[] = []): string[][] => {
+//                 if (arr.length === 0) return [prefix];
+//                 const [first, ...rest] = arr;
+//                 return first.flatMap((value) => combine(rest, [...prefix, value]));
+//             };
+
+//             return combine(values).map((combination) => {
+//                 const variantDetails = combination
+//                     .map((value, index) => `${keys[index]}: ${value}`)
+//                     .join(", ");
+//                 return { variantDetails, combination };
+//             });
+//         };
+
+//         const updatedVariants = generateCombinations(optionRecords);
+
+//         // Get existing combinations for filtering new variants
+//         const existingCombinationKeys = new Set(
+//             existingVariants.map((variant: any) =>
+//                 variant.optionDetails
+//                     .split(", ")
+//                     .map((detail: any) => detail.split(": ")[1])
+//                     .join(",")
+//             )
+//         );
+
+//         const newCombinations = updatedVariants.filter(({ combination }) => {
+//             const key = combination.join(",");
+//             return !existingCombinationKeys.has(key);
+//         });
+
+//         // Create new variants
+//         const newVariantPromises = newCombinations.map(async ({ variantDetails, combination }) => {
+//             const variantTitle = `${combination.join(" - ")}`;
+//             const stockKey = combination.join(",");
+//             const inventoryData = varientdata[stockKey] || { stock: 0, sku: "", price: 0, images: [] };
+
+//             return prisma.variant.create({
+//                 data: {
+//                     productId: Number(productId),
+//                     optionDetails: variantDetails,
+//                     varianttitle: variantTitle,
+//                     price: inventoryData.price,
+//                     inventory: inventoryData.stock.toString(),
+//                     sku: inventoryData.sku,
+//                     images: {
+//                         create: inventoryData.images.map((image) => ({ url: image.url })),
+//                     },
+//                 },
+//             });
+//         });
+
+//         await Promise.all(newVariantPromises);
+
+//         return NextResponse.json({
+//             message: "Product options and variants updated successfully",
+//             newVariants: newCombinations,
+//         });
+//     } catch (error: any) {
+//         console.error("Error updating product variants:", error);
+//         return NextResponse.json(
+//             { error: error?.message || "An error occurred" },
+//             { status: 500 }
+//         );
+//     }
+// };
+
+
 export const PUT = async (req: NextRequest) => {
     try {
-        const body: Partial<{
+        const body: {
             productId: string;
-            title: string;
-            tags: string[];
             options: Record<string, string[]>;
             varientdata: Record<string, { stock: number; sku: string; price: number; images: { url: string }[] }>;
-        }> = await req.json();
+            title?: string;
+            tags?: string[];
+        } = await req.json();
 
-        const { productId, title, tags, options, varientdata } = body;
+        const { productId, options, varientdata, title, tags } = body;
 
-        if (!productId) {
+        if (!productId || typeof productId !== "string") {
             return NextResponse.json(
-                { error: "Product ID is required to perform an update." },
+                { error: "Invalid 'productId'. It must be a non-empty string." },
                 { status: 400 }
             );
         }
 
-        const checkdataoptions = await prisma.product.findUnique({
-            where: {
-                id: Number(productId),
-            },
-            select: {
-                optiondetails: true,
-            },
-        });
-
-        const areOptionsEqual =
-            checkdataoptions &&
-            checkdataoptions.optiondetails &&
-            options &&
-            Object.keys(options).every((key: any) => {
-                const optionDetail = checkdataoptions && checkdataoptions?.optiondetails[key];
-                const compareOption = options[key];
-
-                return (
-                    Array.isArray(optionDetail) &&
-                    Array.isArray(compareOption) &&
-                    optionDetail.length === compareOption.length &&
-                    optionDetail.every((val, index) => val === compareOption[index])
-                );
-            });
-
-        // Update title or tags if provided
+        // Update product title and tags
         if (title || tags) {
             await prisma.product.update({
                 where: { id: Number(productId) },
@@ -310,186 +1040,112 @@ export const PUT = async (req: NextRequest) => {
             });
         }
 
-        if (areOptionsEqual) {
-            if (options) {
-
-                console.log(options, "optionsoptionsoptions")
-                await prisma.product.update({
-                    where: {
-                        id: Number(productId),
-                    },
-                    data: {
-                        optiondetails: options,
-                    },
-                });
-
-                await prisma.productOption.deleteMany({ where: { productId: Number(productId) } });
-                await Promise.all(
-                    Object.entries(options).map(([key, values]) =>
-                        prisma.productOption.create({
-                            data: {
-                                productId: Number(productId),
-                                key,
-                                values,
-                            },
-                        })
-                    )
-                );
-
-                const updatedVariants = Object.entries(varientdata || {}).map(([variantKey, variantData]) => ({
-                    optionDetails: variantKey,
-                    title: `${title || ""} - ${variantKey.split(",").join(" - ")}`,
-                    price: variantData.price,
-                    stock: variantData.stock.toString(),
-                    sku: variantData.sku,
-                    images: variantData.images,
-                }));
-                await prisma.variant.deleteMany({ where: { productId: Number(productId) } });
-                await Promise.all(
-                    updatedVariants.map((variant) =>
-                        prisma.variant.create({
-                            data: {
-                                productId: Number(productId),
-                                optionDetails: variant.optionDetails,
-                                varianttitle: variant.title,
-                                price: variant.price,
-                                inventory: variant.stock,
-                                sku: variant.sku,
-                                images: {
-                                    create: variant.images?.map((image) => ({ url: image.url })),
-                                },
-                            },
-                        })
-                    )
-                );
-            }
-            if (varientdata) {
-                const existingVariants = await prisma.variant.findMany({
-                    where: { productId: Number(productId) },
-                });
-                await Promise.all(
-                    Object.entries(varientdata)?.map(async ([variantKey, variantData]) => {
-                        const existingVariant = existingVariants.find((v: any) => v.optionDetails.includes(variantKey));
-
-                        if (existingVariant) {
-                            await prisma.variant.update({
-                                where: { id: existingVariant.id },
-                                data: {
-                                    ...(variantData.price && { price: variantData.price }),
-                                    ...(variantData.stock && { inventory: variantData.stock.toString() }),
-                                    ...(variantData.sku && { sku: variantData.sku }),
-                                    ...(variantData.images && {
-                                        images: {
-                                            deleteMany: {}, // Delete old images
-                                            create: variantData?.images.map((image: any) => ({ url: image.url })),
-                                        },
-                                    }),
-                                },
-                            });
-                        } else {
-                            await prisma.variant.create({
-                                data: {
-                                    productId: Number(productId),
-                                    optionDetails: variantKey,
-                                    varianttitle: `${title || ""} - ${variantKey.split(",").join(" - ")}`,
-                                    price: variantData.price,
-                                    inventory: variantData.stock.toString(),
-                                    sku: variantData.sku,
-                                    images: {
-                                        create: variantData.images?.map((image) => ({ url: image.url })),
-                                    },
-                                },
-                            });
-                        }
-                    })
-                );
-            }
-        } else {
-            await prisma.product.update({
-                where: {
-                    id: Number(productId),
-                },
-                data: {
-                    optiondetails: options,
-                },
-            });
-            await prisma.productOption.deleteMany({ where: { productId: Number(productId) } });
-            const optionRecords = await Promise.all(
-                Object.entries(options || {}).map(async ([key, values]) => {
-                    return prisma.productOption.create({
-                        data: {
-                            productId: Number(productId),
-                            key,
-                            values,
-                        },
-                    });
-                })
-            );
-            const generateCombinations = (
-                records: { key: string; values: string[] }[]
-            ) => {
-                const keys = records?.map((record) => record.key);
-                const values = records?.map((record) => record.values);
-
-                const combine = (arr: string[][], prefix: string[] = []): string[][] => {
-                    if (arr.length === 0) return [prefix];
-                    const [first, ...rest] = arr;
-                    return first.flatMap((value: any) => combine(rest, [...prefix, value]));
-                };
-
-                return combine(values).map((combination) => {
-                    const variantDetails = combination
-                        .map((value: any, index: any) => `${keys[index]}: ${value}`)
-                        .join(", ");
-                    return { variantDetails, combination };
-                });
-            };
-
-            const variantsData = generateCombinations(
-                optionRecords.map((record) => ({
-                    key: record.key,
-                    values: record.values as string[],
-                }))
-            );
-
-            await prisma.variant.deleteMany({ where: { productId: Number(productId) } });
-
-            await Promise.all(
-                variantsData.map(async ({ variantDetails, combination }) => {
-                    const variantTitle = `${title} - ${combination.join("-")}`;
-                    const stockKey = combination.join(",");
-                    const inventoryData = varientdata[stockKey] || { stock: 0, sku: "", price: 0 };
-
-                    return prisma.variant.create({
-                        data: {
-                            productId: Number(productId),
-                            optionDetails: variantDetails,
-                            varianttitle: variantTitle,
-                            price: inventoryData.price,
-                            inventory: inventoryData.stock.toString(),
-                            sku: inventoryData.sku,
-                            images: {
-                                create: inventoryData.images?.map((image: any) => ({
-                                    url: image.url,
-                                })),
-                            },
-                        },
-                    });
-
-                })
-            );
-        }
-
-        return NextResponse.json({
-            message: areOptionsEqual ? "Product and variants updated successfully." : "Product, options, and variants created successfully.",
+        const existingVariants = await prisma.variant.findMany({
+            where: { productId: Number(productId) },
+            include: { images: true },
         });
 
+        const updatedVariantss = Object.entries(varientdata || {})?.map(([variantKey, variantData]) => ({
+            optionDetails: variantKey,
+            title: `${title || ""} - ${variantKey.split(",").join(" - ")}`,
+            price: variantData.price,
+            stock: variantData.stock.toString(),
+            sku: variantData.sku,
+            images: variantData.images,
+        }));
+
+        await prisma.variant.deleteMany({ where: { productId: Number(productId) } });
+
+        await Promise.all(
+            updatedVariantss && updatedVariantss?.map((variant) =>
+                prisma.variant.create({
+                    data: {
+                        productId: Number(productId),
+                        optionDetails: variant.optionDetails,
+                        varianttitle: variant.title,
+                        price: variant.price,
+                        inventory: variant.stock,
+                        sku: variant.sku,
+                        images: {
+                            create: variant.images?.map((image) => ({ url: image.url })),
+                        },
+                    },
+                })
+            )
+        );
+
+        // Generate combinations for new variants
+        const optionRecords = Object.entries(options).map(([key, values]) => ({ key, values }));
+
+        const generateCombinations = (
+            records: { key: string; values: string[] }[]
+        ) => {
+            const keys = records.map((record) => record.key);
+            const values = records.map((record) => record.values);
+
+            const combine = (arr: string[][], prefix: string[] = []): string[][] => {
+                if (arr.length === 0) return [prefix];
+                const [first, ...rest] = arr;
+                return first.flatMap((value) => combine(rest, [...prefix, value]));
+            };
+
+            return combine(values).map((combination) => {
+                const variantDetails = combination
+                    .map((value, index) => `${keys[index]}: ${value}`)
+                    .join(", ");
+                return { variantDetails, combination };
+            });
+        };
+
+        const updatedVariants = generateCombinations(optionRecords);
+
+        // Identify new combinations for creating new variants
+        const existingCombinationKeys = new Set(
+            existingVariants.map((variant: any) =>
+                variant.optionDetails
+                    .split(", ")
+                    .map((detail: any) => detail.split(": ")[1])
+                    .join(",")
+            )
+        );
+
+        const newCombinations = updatedVariants.filter(({ combination }) => {
+            const key = combination.join(",");
+            return !existingCombinationKeys.has(key);
+        });
+
+        // Create new variants
+        const newVariantPromises = newCombinations.map(async ({ variantDetails, combination }) => {
+            const variantTitle = `${combination.join(" - ")}`;
+            const stockKey = combination.join(",");
+            const inventoryData = varientdata[stockKey] || { stock: 0, sku: "", price: 0, images: [] };
+
+            return prisma.variant.create({
+                data: {
+                    productId: Number(productId),
+                    optionDetails: variantDetails,
+                    varianttitle: variantTitle,
+                    price: inventoryData.price,
+                    inventory: inventoryData.stock.toString(),
+                    sku: inventoryData.sku,
+                    images: {
+                        create: inventoryData.images.map((image) => ({ url: image.url })),
+                    },
+                },
+            });
+        });
+
+        await Promise.all(newVariantPromises);
+
+        return NextResponse.json({
+            message: "Product title, tags, options, and variants updated successfully",
+            newVariants: newCombinations,
+        });
     } catch (error: any) {
-        console.error("Error updating product:", error);
+        console.error("Error updating product variants:", error);
         return NextResponse.json(
             { error: error?.message || "An error occurred" },
             { status: 500 }
         );
-
     }
 };

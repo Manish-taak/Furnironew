@@ -39,7 +39,7 @@ const Button: React.FC<Buttonprops> = ({
             onClick={onCLick}
             className={` flex items-center justify-center gap-x-[10px]  ${variantClasses}`}
           >
-            {icon && <SvgIcon height={16} width={16} name="Addicon" />}
+            {icon && <SvgIcon  name="addicon" />}
             {children}
           </button>
         </Link>

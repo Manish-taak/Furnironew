@@ -92,18 +92,19 @@ model CartItem {
 }
 
 model Product {
-  id           Int                 @id @default(autoincrement())
-  title        String
-  favoriteId   Int?
-  tags         Json
-  updatedAt    DateTime            @updatedAt
-  createdAt    DateTime            @default(now())
-  cartItems    CartItem[]
-  Favorite     Favorite?           @relation(fields: [favoriteId], references: [id])
-  comparisonsA ProductComparison[] @relation("ProductA")
-  comparisonsB ProductComparison[] @relation("ProductB")
-  options      ProductOption[]
-  variants     Variant[]
+  id            Int                 @id @default(autoincrement())
+  title         String
+  favoriteId    Int?
+  tags          Json
+  updatedAt     DateTime            @updatedAt
+  createdAt     DateTime            @default(now())
+  optiondetails Json?
+  cartItems     CartItem[]
+  Favorite      Favorite?           @relation(fields: [favoriteId], references: [id])
+  comparisonsA  ProductComparison[] @relation("ProductA")
+  comparisonsB  ProductComparison[] @relation("ProductB")
+  options       ProductOption[]
+  variants      Variant[]
 
   @@index([favoriteId], map: "Product_favoriteId_fkey")
 }

@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer utilities {
+
+  ::selection{
+    color: white;
+    background-color: black
+  }
+
   .heading_48{
     @apply text-5xl font-medium leading-[72px]  ;
   }

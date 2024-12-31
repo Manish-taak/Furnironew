@@ -3,57 +3,67 @@
 @tailwind utilities;
 
 @layer utilities {
-  .heading_48{
-    @apply text-5xl font-medium leading-[72px]  ;
+  ::selection {
+    color: white;
+    background-color: black;
   }
 
-  .heading_40
-  {
-    @apply text-[40px] font-bold leading-[48px] ;
+  .heading_48 {
+    @apply text-5xl font-medium leading-[72px];
   }
 
-  .heading_36{
-    @apply text-4xl leading-[54px] font-semibold ;
+  .heading_40 {
+    @apply text-[40px] font-bold leading-[48px];
   }
 
-  .heading_28{
-    @apply text-[28px] font-semibold leading-9 ;
+  .heading_36 {
+    @apply text-4xl leading-[54px] font-semibold;
   }
-  .heading_25{
+
+  .heading_28 {
+    @apply text-[28px] font-semibold leading-9;
+  }
+  .heading_25 {
     @apply text-[25px] font-semibold leading-[38px];
   }
-  .heading_24{
-    @apply text-[24px] font-semibold leading-[29px] ;
+  .heading_24 {
+    @apply text-[24px] font-semibold leading-[29px];
   }
 
-  .heading_20{
-    @apply text-xl leading-[30px] font-normal ;
+  .heading_20 {
+    @apply text-xl leading-[30px] font-normal;
   }
-  .heading_16{
-    @apply text-base leading-[24px] font-medium ;
-  }
-
-  .subheading_20{
-    @apply text-xl leading-[30px] font-semibold ;
+  .heading_16 {
+    @apply text-base leading-[24px] font-medium;
   }
 
-  .nav_links{
-    @apply text-base font-normal leading-6 ;
+  .subheading_20 {
+    @apply text-xl leading-[30px] font-semibold;
   }
 
-  .card-heading{
-    @apply text-2xl leading-7 font-semibold ;
+  .nav_links {
+    @apply text-base font-normal leading-6;
   }
 
-  .card-description{
-    @apply text-base leading-6 font-medium ;
+  .card-heading {
+    @apply text-2xl leading-7 font-semibold;
   }
 
-  .card_price{
-    @apply text-xl font-semibold leading-[30px] ;
+  .card-description {
+    @apply text-base leading-6 font-medium;
   }
 
-  .container{
-    @apply max-w-[1320px] w-full mx-auto px-5
+  .card_price {
+    @apply text-xl font-semibold leading-[30px];
+  }
+
+  .container {
+    @apply max-w-[1320px] w-full mx-auto px-5;
+  }
+  .common_input {
+    @apply border border-[#b88e2f] rounded-xl p-4 max-w-full w-full placeholder:text-[#b88e2f] outline-none placeholder:text-lg text-lg text-[#b88e2f];
+  }
+  .input_label{
+    @apply heading_25 text-[#b88e2f]
   }
 }

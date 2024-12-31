@@ -1,7 +1,9 @@
+import ProductList from "@/app/(root)/productComparison/page";
 import prisma from "@/lib";
 
 
 import { NextRequest, NextResponse } from "next/server";
+import { number } from "zod";
 interface Image {
     url: string;
 }
@@ -453,7 +455,4 @@ export const PUT = async (req: NextRequest) => {
             { status: 500 }
         );
     }
-}
-
-
-
+};

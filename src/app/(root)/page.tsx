@@ -26,6 +26,7 @@ const page = () => {
   const [show, setshow] = useState(false);
   return (
     <>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor necessitatibus nobis aspernatur, blanditiis impedit consequatur quis ut, repellat dicta nisi accusamus voluptatem illum beatae consequuntur maxime molestias iure a ab!
       {/* <Banner /> */}
       {/* <BrowseRange /> */}
       {/* <FuniroFurniture /> */}

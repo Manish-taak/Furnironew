@@ -1,18 +1,17 @@
 import ProductList from "@/app/(root)/productComparison/page";
 import prisma from "@/lib";
 
-
 import { NextRequest, NextResponse } from "next/server";
+
 import { number } from "zod";
+
 interface Image {
     url: string;
 }
 
-
 interface Options {
     [key: string]: string[];
 }
-
 
 interface ProductRequestBody {
     title: string;
@@ -21,7 +20,6 @@ interface ProductRequestBody {
     options: Options;
     stock: string
 }
-
 
 /**  
  * @swagger
@@ -130,7 +128,7 @@ export const POST = async (req: NextRequest) => {
         };
 
         const variantsData = generateCombinations(
-            optionRecords.map((record) => ({
+            optionRecords.map((record: any) => ({
                 key: record.key,
                 values: record.values as string[],
             }))
@@ -187,7 +185,6 @@ export const POST = async (req: NextRequest) => {
  *               400: 
  *                 description : hello 400 error
  */
-
 
 export const GET = async (req: NextRequest) => {
     try {

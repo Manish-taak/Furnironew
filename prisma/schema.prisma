@@ -8,39 +8,30 @@ generator client {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  name     String?
-  email    String? @unique
-  phone    String?
-  password String
-
-  // Add these fields for password reset functionality
-  resetToken    String? // Optional field for reset token
-  resetTokenExp DateTime? // Optional field for reset token expiry
-
-  Review    Review[]   @relation("UserReview")
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  Cart      Cart[]
-  Favorite  Favorite[]
+  id            Int        @id @default(autoincrement())
+  name          String?
+  email         String?    @unique
+  phone         String?
+  password      String
+  Role          Role       @default(USER)
+  resetToken    String?
+  resetTokenExp DateTime?
+  Review        Review[]   @relation("UserReview")
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  Cart          Cart[]
+  Favorite      Favorite[]
 }
 
-// model User {
-//   id       Int      @id @default(autoincrement())
-//   email    String   @unique
-//   password String
-//   name     String?  // Optional field
-//   phonets  String?  // Optional field
-// }
-
 model Review {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   title     String
   content   String
   userId    Int
-  user      User     @relation("UserReview", fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user      User      @relation("UserReview", fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Product   Product[]
 }
 
 model Contact {
@@ -51,6 +42,12 @@ model Contact {
   message   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model subscribe {
+  id        Int     @id @default(autoincrement())
+  subscribe String
+  image     String?
 }
 
 model Checkout {
@@ -79,11 +76,12 @@ model Cart {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   Checkout  Checkout[]
+  Product   Product[]
 }
 
 model CartItem {
   id        Int     @id @default(autoincrement())
-  productId Int
+  productId String
   quantity  Int
   price     Float
   cartId    Int
@@ -92,52 +90,90 @@ model CartItem {
   subtotal  Float
 }
 
-// products model 
+model ProductCategory {
+  id           Int       @id @default(autoincrement())
+  CategoryName String
+  Product      Product[]
+}
 
 model Product {
-  id           Int                 @id @default(autoincrement())
-  title        String
-  price        Float
-  description  String
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  cartItems    CartItem[]
-  images       ProductImage[]
-  sizes        ProductSize[]
-  colors       ProductColor[]
-  comparisonsA ProductComparison[] @relation("ProductA")
-  comparisonsB ProductComparison[] @relation("ProductB")
-  Favorite     Favorite?           @relation(fields: [favoriteId], references: [id])
-  favoriteId   Int?
+  id                 String              @id @default(uuid()) // Generates a random UUID
+  title              String
+  price              Float
+  description        String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  ProductCategory    ProductCategory     @relation(fields: [productCategoryId], references: [id])
+  cartItems          CartItem[]
+  images             ProductImage[]
+  sizes              ProductSize[]
+  colors             ProductColor[]
+  comparisonsA       ProductComparison[] @relation("ProductA")
+  comparisonsB       ProductComparison[] @relation("ProductB")
+  Favorite           Favorite?           @relation(fields: [favoriteId], references: [id])
+  favoriteId         Int?
+  productCategoryId  Int
+  Manufacture        String
+  LoadCapacity       Int
+  AdjustableHeadrest Boolean
+  FinishType         String
+  Dimensions         Dimensions[]
+  Warranty           Warranty[]
+  Review             Review?             @relation(fields: [reviewId], references: [id])
+  reviewId           Int?
+  Cart               Cart?               @relation(fields: [cartId], references: [id])
+  cartId             Int?
+}
+
+model Warranty {
+  id                   String   @id @default(uuid())
+  warrantySummary      String?
+  warrantyService      String?
+  coveredinWarranty    String?
+  notCoveredinWarranty String?
+  Product              Product? @relation(fields: [productId], references: [id])
+  productId            String?
+  option               Json?
+}
+
+model Dimensions {
+  id         String   @id @default(uuid())
+  Width      Float?
+  Height     Int?
+  Depth      Float?
+  Weight     Int?
+  SeatHeight Float?
+  LegHeight  Float?
+  Product    Product? @relation(fields: [productId], references: [id])
+  productId  String?
+  option     Json?
 }
 
 model ProductImage {
   id        Int     @id @default(autoincrement())
-  url       String // URL or path to the image
-  productId Int
+  url       String
+  productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model ProductSize {
   id        Int     @id @default(autoincrement())
-  size      String // e.g., "Small", "Medium", "Large", etc.
-  productId Int
+  size      String
+  productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model ProductColor {
   id        Int     @id @default(autoincrement())
-  color     String // e.g., "Red", "Blue", "Green", etc.
-  productId Int
+  color     String
+  productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
-// products model
-
 model ProductComparison {
   id         Int      @id @default(autoincrement())
-  productAId Int
-  productBId Int
+  productAId String
+  productBId String
   createdAt  DateTime @default(now())
   productA   Product  @relation("ProductA", fields: [productAId], references: [id], onDelete: Cascade)
   productB   Product  @relation("ProductB", fields: [productBId], references: [id], onDelete: Cascade)
@@ -156,4 +192,9 @@ model Favorite {
   User      User?     @relation(fields: [userId], references: [id])
   userId    Int?
   Product   Product[]
+}
+
+enum Role {
+  ADMIN
+  USER
 }

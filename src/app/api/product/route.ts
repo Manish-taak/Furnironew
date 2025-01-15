@@ -25,17 +25,22 @@ interface ProductData {
 }
 
 export async function POST(req: NextRequest) {
-  console.log(req, "datatatataatatatatat")
+
+  
   try {
+    
     // Use `multer` middleware to handle the file upload
     await runMiddleware(req, {} as NextApiResponse, uploadMiddleware);
-
+    
     // Get the request body data
-    const data: any = req.body;
+    const data: any = await req.json(); 
+    console.log(data, "sdsdsdsdsdsdsdsdsdsssdsss")
 
     // Extract file information
     const file = (req as any).file;
     const fileUrl = file ? `/uploads/${file.filename}` : '';
+
+      console.log(fileUrl , "fileUrlfileUrlfileUrlfileUrl")    
 
     // Create a new product in the database
     const newProduct = await prisma.product.create({
@@ -44,17 +49,17 @@ export async function POST(req: NextRequest) {
         price: data.price,
         description: data.description,
         images: {
-          create: [{ url: fileUrl }, ...data.images.map((image: any) => ({
+          create: [{ url: fileUrl }, ...data.images?.map((image: any) => ({
             url: image.url,
           }))],
         },
         sizes: {
-          create: data.sizes.map((size: any) => ({
+          create: data.sizes?.map((size: any) => ({
             size: size.size,
           })),
         },
         colors: {
-          create: data.colors.map((color: any) => ({
+          create: data.colors?.map((color: any) => ({
             color: color.color,
           })),
         },

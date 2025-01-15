@@ -1,4 +1,3 @@
-// src/app/api/auth/reset-password/request/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmail } from "@/app/utils/sendEmail";
@@ -20,7 +19,7 @@ export async function POST(req: NextRequest) {
         }
 
         const otp = generateOtp();
-        const expirationTime = addMinutes(new Date(), 1);
+        const expirationTime = addMinutes(new Date(), 10);
 
         await prisma.user.update({
             where: { email },

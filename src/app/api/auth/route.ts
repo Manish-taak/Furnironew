@@ -2,6 +2,9 @@ import { generateToken, hashPassword } from "@/app/utils/auth";
 import prisma from "@/lib";
 import { NextRequest, NextResponse } from "next/server";
 
+
+
+
 export async function POST(req: NextRequest) {
     try {
         const { email, password, phone } = await req.json(); // Include 'phone' in the request body

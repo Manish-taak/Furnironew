@@ -1,5 +1,6 @@
 import ProductList from "@/app/(root)/productComparison/page";
 import prisma from "@/lib";
+import { error } from "console";
 
 
 import { NextRequest, NextResponse } from "next/server";
@@ -260,47 +261,80 @@ export const DELETE = async (req: NextRequest) => {
         const productId = searchParams.get('productId');
         const variantId = searchParams.get('variantId');
 
-        if (!productId || !variantId) {
-            return NextResponse.json(
-                { error: 'Product ID and Variant ID are required as query parameters.' },
-                { status: 400 }
-            );
+        if (productId && !variantId) {
+            console.log("first")
+            // Delete Product
+            try {
+                await prisma.product.delete({
+                    where: {
+                        id: Number(productId),
+                    },
+                });
+
+                return NextResponse.json(
+                    { success: true, message: 'Product deleted successfully.' },
+                    { status: 200 }
+                );
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                return NextResponse.json(
+                    { error: 'Failed to delete product.' },
+                    { status: 500 }
+                );
+            }
         }
 
-        try {
-            const result = await prisma.variant.deleteMany({
-                where: {
-                    id: Number(variantId),
-                    productId: Number(productId)
-                },
-            });
+        if (productId && variantId) {
 
-            if (result.count === 0) {
+            if (!productId || !variantId) {
                 return NextResponse.json(
-                    { error: 'Variant not found for the given product ID.' },
-                    { status: 404 }
+                    { error: 'Product ID and Variant ID are required as query parameters.' },
+                    { status: 400 }
                 );
             }
 
-            return NextResponse.json(
-                { success: true, message: 'Variant deleted successfully.' },
-                { status: 200 }
-            );
+            // Delete Variant
+            try {
+                const result = await prisma.variant.deleteMany({
+                    where: {
+                        id: Number(variantId),
+                        productId: Number(productId),
+                    },
+                });
 
-        } catch (error) {
-            console.error('Error deleting variant:', error);
-            return NextResponse.json(
-                { error: 'Failed to delete variant.' },
-                { status: 500 }
-            );
+                if (result.count === 0) {
+                    return NextResponse.json(
+                        { error: 'Variant not found for the given product ID.' },
+                        { status: 404 }
+                    );
+                }
+
+                return NextResponse.json(
+                    { success: true, message: 'Variant deleted successfully.' },
+                    { status: 200 }
+                );
+            } catch (error) {
+                console.error('Error deleting variant:', error);
+                return NextResponse.json(
+                    { error: 'Failed to delete variant.' },
+                    { status: 500 }
+                );
+            }
         }
-    } else {
+
+        // Missing or invalid parameters
         return NextResponse.json(
-            { error: 'Method not allowed. Use DELETE.' },
-            { status: 405 }
+            { error: 'Product ID is required, and Variant ID is optional.' },
+            { status: 400 }
         );
     }
-}
+
+    // Invalid HTTP method
+    return NextResponse.json(
+        { error: 'Method not allowed. Use DELETE.' },
+        { status: 405 }
+    );
+};
 
 /**
  * @swagger

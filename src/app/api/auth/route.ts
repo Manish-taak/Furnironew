@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
             data: {
                 email,
                 phone, // Save the phone number as well
-                password: hashedPassword,
+                password: hashedPassword
             },
         });
 

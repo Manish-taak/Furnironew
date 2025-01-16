@@ -2,16 +2,20 @@
 
 import Button from "@/component/ui/Button";
 import React, { useRef, useState } from "react";
-import { Controller, useForm } from 'react-hook-form'
-interface FormData {
+import { Controller, useForm, SubmitHandler } from 'react-hook-form'
+interface seotags {
     seoTags: string[];
 }
-type Option = {
+interface product {
+    title: string,
+    defaultprice: string
+}
+interface Option {
     name: string;
     values: string[];
 };
 
-type Variant = {
+interface Variant {
     id: string;
     combination: string;
     stock: number;
@@ -20,10 +24,7 @@ type Variant = {
     sku: string;
 };
 
-type StoredData = {
-    options: Option[];
-    variants: Variant[];
-};
+type FormData = seotags & Option & Variant & product
 
 const VariantGenerator: React.FC = () => {
 
@@ -32,8 +33,13 @@ const VariantGenerator: React.FC = () => {
         setValue,
         getValues,
         watch,
+        register,
+        handleSubmit,
         formState: { errors },
     } = useForm<FormData>();
+
+    const onSubmit: SubmitHandler<FormData> = (data) => console.log(data)
+
     const [inputValue, setInputValue] = useState('');
     const errorRef = useRef<HTMLParagraphElement>(null);
 
@@ -150,15 +156,17 @@ const VariantGenerator: React.FC = () => {
         setVariants(updatedVariants);
     };
 
+
+
     return (
         <>
             <section>
                 <div className="container">
-                    <form action="">
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         <label htmlFor="title" className='input_label'>Title :</label>
-                        <input className='common_input' id='title' type="text" placeholder='Enter title' />
+                        <input {...register('title')} className='common_input' id='title' type="text" placeholder='Enter title' />
                         <label htmlFor="price" className='input_label'>Price :</label>
-                        <input className='common_input' id='price' type="text" placeholder='Enter Price' />
+                        <input {...register('defaultprice')} className='common_input' id='price' type="text" placeholder='Enter Price' />
                         <div className="flex flex-col">
                             <label className="input_label" htmlFor="seoTags">
                                 SEO Keywords Tag
@@ -226,6 +234,7 @@ const VariantGenerator: React.FC = () => {
                                                 type="text"
                                                 placeholder="Option Name (e.g., Color)"
                                                 value={option.name}
+                                                {...register('name')}
                                                 onChange={(e) => updateOptionName(index, e.target.value)}
                                                 className="common_input"
                                             />
@@ -244,6 +253,7 @@ const VariantGenerator: React.FC = () => {
                                                         type="text"
                                                         placeholder={`Value ${valueIndex + 1}`}
                                                         value={value}
+                                                        {...register(`values.${index}`)}
                                                         onChange={(e) =>
                                                             updateOptionValue(index, valueIndex, e.target.value)
                                                         }
@@ -266,7 +276,7 @@ const VariantGenerator: React.FC = () => {
                                 {options.length < 5 && (
                                     <Button
                                         btntype="button"
-                                        varient="solid" 
+                                        varient="solid"
                                         className="!py-3"
                                         onCLick={addOption}
                                     >
@@ -294,6 +304,7 @@ const VariantGenerator: React.FC = () => {
                                                             type="number"
                                                             min="0"
                                                             value={variant.stock}
+                                                            {...register('stock')}
                                                             onChange={(e) =>
                                                                 updateVariantField(variant.id, "stock", +e.target.value)
                                                             }
@@ -306,6 +317,7 @@ const VariantGenerator: React.FC = () => {
                                                             type="number"
                                                             min="0"
                                                             step="0.01"
+                                                            {...register('price')}
                                                             value={variant.price}
                                                             onChange={(e) =>
                                                                 updateVariantField(variant.id, "price", +e.target.value)
@@ -318,6 +330,7 @@ const VariantGenerator: React.FC = () => {
                                                         <input
                                                             type="text"
                                                             value={variant.sku}
+                                                            {...register('sku')}
                                                             onChange={(e) =>
                                                                 updateVariantField(variant.id, "sku", e.target.value)
                                                             }
@@ -328,6 +341,7 @@ const VariantGenerator: React.FC = () => {
                                                         <label className="block text-sm font-medium">Image</label>
                                                         <input
                                                             type="file"
+                                                            {...register('image')}
                                                             accept="image/*"
                                                             onChange={(e) =>
                                                                 updateVariantField(
@@ -347,7 +361,7 @@ const VariantGenerator: React.FC = () => {
                                 </div>
                             )}
                         </div>
-                        <Button varient='solid' className='!py-4 mt-5' children="Submit Details" />
+                        <Button btntype="submit" varient='solid' className='!py-4 mt-5' children="Submit Details" />
                     </form>
                 </div>
             </section>
@@ -356,3 +370,5 @@ const VariantGenerator: React.FC = () => {
 };
 
 export default VariantGenerator;
+
+

@@ -1,6 +1,4 @@
-import ProductList from "@/app/(root)/productComparison/page";
 import prisma from "@/lib";
-import { error } from "console";
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -105,7 +103,6 @@ export const POST = async (req: NextRequest) => {
                 });
             })
         );
-
 
         const generateCombinations = (
             records: { key: string; values: string[] }[]

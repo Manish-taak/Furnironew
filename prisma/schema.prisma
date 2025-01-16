@@ -91,58 +91,6 @@ model CartItem {
   @@index([productId], map: "CartItem_productId_fkey")
 }
 
-// model Product {
-//   id            Int                 @id @default(autoincrement())
-//   title         String
-//   favoriteId    Int?
-//   tags          Json
-//   updatedAt     DateTime            @updatedAt
-//   createdAt     DateTime            @default(now())
-//   cartItems     CartItem[]
-//   Favorite      Favorite?           @relation(fields: [favoriteId], references: [id])
-//   comparisonsA  ProductComparison[] @relation("ProductA")
-//   comparisonsB  ProductComparison[] @relation("ProductB")
-//   options       ProductOption[]
-//   variants      Variant[]       
-//   optiondetails Json?
-
-//   @@index([favoriteId], map: "Product_favoriteId_fkey")
-// }
-
-// model ProductOption {
-//   id        Int       @id @default(autoincrement())
-//   productId Int
-//   key       String
-//   values    Json
-//   createdAt DateTime  @default(now())
-//   updatedAt DateTime  @updatedAt
-//   product   Product   @relation(fields: [productId], references: [id])
-//   variants  Variant[]
-
-//   @@index([productId], map: "ProductOption_productId_fkey")
-// }
-
-// model Variant {
-//   id              Int            @id @default(autoincrement())
-//   productId       Int
-//   varianttitle    String?
-//   optionDetails   Json
-//   createdAt       DateTime       @default(now())
-//   updatedAt       DateTime       @updatedAt
-//   productOptionId Int?
-//   price           Float
-//   sku             String?
-//   inventory       String?
-//   images          ProductImage[]
-//   product         Product        @relation(fields: [productId], references: [id])
-//   ProductOption   ProductOption? @relation(fields: [productOptionId], references: [id])
-
-//   @@index([productId], map: "Variant_productId_fkey")
-//   @@index([productOptionId], map: "Variant_productOptionId_fkey")
-// }
-
-
-
 model Product {
   id            Int                 @id @default(autoincrement())
   title         String
@@ -150,13 +98,13 @@ model Product {
   tags          Json
   updatedAt     DateTime            @updatedAt
   createdAt     DateTime            @default(now())
+  optiondetails Json?
   cartItems     CartItem[]
   Favorite      Favorite?           @relation(fields: [favoriteId], references: [id])
   comparisonsA  ProductComparison[] @relation("ProductA")
   comparisonsB  ProductComparison[] @relation("ProductB")
   options       ProductOption[]
-  variants      Variant[]            // Ensures cascading delete
-  optiondetails Json?
+  variants      Variant[]
 
   @@index([favoriteId], map: "Product_favoriteId_fkey")
 }
@@ -168,7 +116,7 @@ model ProductOption {
   values    Json
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade) // Cascades on product delete
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   variants  Variant[]
 
   @@index([productId], map: "ProductOption_productId_fkey")
@@ -186,8 +134,8 @@ model Variant {
   sku             String?
   inventory       String?
   images          ProductImage[]
-  product         Product        @relation(fields: [productId], references: [id], onDelete: Cascade) // Cascades on product delete
-  ProductOption   ProductOption? @relation(fields: [productOptionId], references: [id], onDelete: Cascade) // Cascades on product option delete
+  product         Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ProductOption   ProductOption? @relation(fields: [productOptionId], references: [id], onDelete: Cascade)
 
   @@index([productId], map: "Variant_productId_fkey")
   @@index([productOptionId], map: "Variant_productOptionId_fkey")

@@ -63,7 +63,7 @@ const VariantGenerator: React.FC = () => {
 
     const [options, setOptions] = useState<Option[]>([]);
     const [variants, setVariants] = useState<Variant[]>([]);
-    const [storedData, setStoredData] = useState<StoredData | null>(null);
+    // const [storedData, setStoredData] = useState<StoredData | null>(null);
 
     const addOption = () => {
         if (options.length < 5) {
@@ -148,11 +148,6 @@ const VariantGenerator: React.FC = () => {
             variant.id === id ? { ...variant, [field]: value } : variant
         );
         setVariants(updatedVariants);
-    };
-
-    const saveData = () => {
-        setStoredData({ options, variants });
-        alert("Data saved successfully!");
     };
 
     return (
@@ -269,13 +264,14 @@ const VariantGenerator: React.FC = () => {
                                     </div>
                                 ))}
                                 {options.length < 5 && (
-                                    <button
-                                        type="button"
-                                        onClick={addOption}
-                                        className="py-2 px-4 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                                    <Button
+                                        btntype="button"
+                                        varient="solid" 
+                                        className="!py-3"
+                                        onCLick={addOption}
                                     >
                                         Add Option
-                                    </button>
+                                    </Button>
                                 )}
                             </div>
 
@@ -350,24 +346,6 @@ const VariantGenerator: React.FC = () => {
                                     ))}
                                 </div>
                             )}
-
-                            <button
-                                type="button"
-                                onClick={saveData}
-                                className="py-2 px-4 text-white bg-green-500 rounded-md hover:bg-green-600"
-                            >
-                                Save Data
-                            </button>
-
-                            {storedData && (
-                                <div className="mt-6 p-4 border border-gray-300 rounded-md">
-                                    <h2 className="text-xl font-semibold">Saved Data</h2>
-                                    <pre className="mt-4 bg-gray-100 p-4 rounded-md overflow-x-auto">
-                                        {JSON.stringify(storedData, null, 2)}
-                                    </pre>
-                                </div>
-                            )}
-
                         </div>
                         <Button varient='solid' className='!py-4 mt-5' children="Submit Details" />
                     </form>

@@ -253,26 +253,49 @@ export const GET = async (req: NextRequest) => {
  *          400: 
  *            description : hello 400 error
  */
+
 export const DELETE = async (req: NextRequest) => {
     if (req.method === 'DELETE') {
         const { searchParams } = new URL(req.url);
         const productId = searchParams.get('productId');
         const variantId = searchParams.get('variantId');
+        if (!productId) {
+            return NextResponse.json(
+                { error: 'Product ID is required.' },
+                { status: 400 }
+            );
+        }
+
+        // Check if the product exists
+        const product = await prisma.product.findUnique({
+            where: { id: Number(productId) },
+        });
+
+        if (!product) {
+            return NextResponse.json(
+                { error: 'Product not found.' },
+                { status: 404 }
+            );
+        }
 
         if (productId && !variantId) {
-            // console.log("first")
-            // Delete Product
             try {
-                await prisma.product.delete({
+                const rem = await prisma.product.delete({
                     where: {
                         id: Number(productId),
                     },
                 });
-
-                return NextResponse.json(
-                    { success: true, message: 'Product deleted successfully.' },
-                    { status: 200 }
-                );
+                if (rem) {
+                    return NextResponse.json(
+                        { success: true, message: 'Product deleted successfully.' },
+                        { status: 200 }
+                    );
+                } else {
+                    return NextResponse.json(
+                        { success: true, message: 'Product not deleted.' },
+                        { status: 400 }
+                    );
+                }
             } catch (error) {
                 console.error('Error deleting product:', error);
                 return NextResponse.json(
@@ -333,6 +356,90 @@ export const DELETE = async (req: NextRequest) => {
         { status: 405 }
     );
 };
+// export const DELETE = async (req: NextRequest) => {
+//     if (req.method === 'DELETE') {
+//         const { searchParams } = new URL(req.url);
+//         const productId = searchParams.get('productId');
+//         const variantId = searchParams.get('variantId');
+
+//         if (productId && !variantId) {
+//             try {
+//                 await prisma.product.delete({
+//                     where: {
+//                         id: Number(productId),
+//                     },
+//                 });
+
+//                 return NextResponse.json(
+//                     { success: true, message: 'Product deleted successfully.' },
+//                     { status: 200 }
+//                 );
+//             } catch (error) {
+//                 console.error('Error deleting product:', error);
+//                 return NextResponse.json(
+//                     { error: 'Failed to delete product.' },
+//                     { status: 500 }
+//                 );
+//             }
+//         }
+
+//         if (productId && variantId) {
+
+//             if (!productId || !variantId) {
+//                 return NextResponse.json(
+//                     { error: 'Product ID and Variant ID are required as query parameters.' },
+//                     { status: 400 }
+//                 );
+//             }
+
+//             // Delete Variant
+//             try {
+//                 const result = await prisma.variant.deleteMany({
+//                     where: {
+//                         id: Number(variantId),
+//                         productId: Number(productId),
+//                     },
+//                 });
+
+//                 if (result.count === 0) {
+//                     return NextResponse.json(
+//                         { error: 'Variant not found for the given product ID.' },
+//                         { status: 404 }
+//                     );
+//                 }
+
+//                 return NextResponse.json(
+//                     { success: true, message: 'Variant deleted successfully.' },
+//                     { status: 200 }
+//                 );
+//             } catch (error) {
+//                 console.error('Error deleting variant:', error);
+//                 return NextResponse.json(
+//                     { error: 'Failed to delete variant.' },
+//                     { status: 500 }
+//                 );
+//             }
+//         }
+
+//         // Missing or invalid parameters
+//         return NextResponse.json(
+//             { error: 'Product ID is required, and Variant ID is optional.' },
+//             { status: 400 }
+//         );
+//     }
+
+//     // Invalid HTTP method
+//     return NextResponse.json(
+//         { error: 'Method not allowed. Use DELETE.' },
+//         { status: 405 }
+//     );
+// };
+
+
+
+
+
+
 
 /**
  * @swagger

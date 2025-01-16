@@ -2,18 +2,17 @@ import ProductList from "@/app/(root)/productComparison/page";
 import prisma from "@/lib";
 import { error } from "console";
 
-
 import { NextRequest, NextResponse } from "next/server";
+
 import { number } from "zod";
+
 interface Image {
     url: string;
 }
 
-
 interface Options {
     [key: string]: string[];
 }
-
 
 interface ProductRequestBody {
     title: string;
@@ -22,7 +21,6 @@ interface ProductRequestBody {
     options: Options;
     stock: string
 }
-
 
 /**  
  * @swagger
@@ -99,7 +97,7 @@ export const POST = async (req: NextRequest) => {
         );
 
         const optionRecords = await Promise.all(
-            Object.entries(options).map(async ([key, values]) => {
+            Object.entries(options)?.map(async ([key, values]) => {
                 return prisma.productOption.create({
                     data: {
                         productId: product.id,
@@ -131,7 +129,7 @@ export const POST = async (req: NextRequest) => {
         };
 
         const variantsData = generateCombinations(
-            optionRecords.map((record) => ({
+            optionRecords.map((record: any) => ({
                 key: record.key,
                 values: record.values as string[],
             }))
@@ -166,6 +164,7 @@ export const POST = async (req: NextRequest) => {
             optionRecords,
             variantsData,
         });
+
     } catch (error: any) {
         console.error("Error adding product:", error);
         return NextResponse.json(
@@ -188,7 +187,6 @@ export const POST = async (req: NextRequest) => {
  *               400: 
  *                 description : hello 400 error
  */
-
 
 export const GET = async (req: NextRequest) => {
     try {
@@ -262,7 +260,7 @@ export const DELETE = async (req: NextRequest) => {
         const variantId = searchParams.get('variantId');
 
         if (productId && !variantId) {
-            console.log("first")
+            // console.log("first")
             // Delete Product
             try {
                 await prisma.product.delete({

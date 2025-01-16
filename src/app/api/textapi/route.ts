@@ -4,8 +4,6 @@ import { error } from "console";
 
 import { NextRequest, NextResponse } from "next/server";
 
-import { number } from "zod";
-
 interface Image {
     url: string;
 }
@@ -107,6 +105,7 @@ export const POST = async (req: NextRequest) => {
                 });
             })
         );
+
 
         const generateCombinations = (
             records: { key: string; values: string[] }[]
@@ -240,6 +239,7 @@ export const GET = async (req: NextRequest) => {
     }
 };
 
+
 /**  
  * @swagger
  * /api/textapi:
@@ -253,6 +253,8 @@ export const GET = async (req: NextRequest) => {
  *          400: 
  *            description : hello 400 error
  */
+
+
 export const DELETE = async (req: NextRequest) => {
     if (req.method === 'DELETE') {
         const { searchParams } = new URL(req.url);

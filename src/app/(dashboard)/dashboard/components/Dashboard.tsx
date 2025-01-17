@@ -10,7 +10,6 @@ interface Option {
 
 interface Variant {
     id: string;
-    combination: string;
     stock: number;
     price: number;
     images: { url: string }[];
@@ -21,7 +20,7 @@ interface FormData {
     title: string;
     defaultprice: string;
     tags: string[];
-    variants: Variant[];
+    varientdata: Variant[];
 }
 
 const VariantGenerator: React.FC = () => {
@@ -34,14 +33,14 @@ const VariantGenerator: React.FC = () => {
     } = useForm<FormData>({
         defaultValues: {
             tags: [],
-            variants: [],
+            varientdata: [],
         },
     });
 
     const [response, setResponse] = useState<any>();
     const [inputValue, setInputValue] = useState("");
     const [options, setOptions] = useState<Option[]>([]);
-    const [variants, setVariants] = useState<Variant[]>([]);    
+    const [varientdata, setvarientdata] = useState<Variant[]>([]);
 
     const tags = watch("tags") || [];
 
@@ -91,7 +90,7 @@ const VariantGenerator: React.FC = () => {
         }
 
         setOptions(updatedOptions);
-        generateVariants(updatedOptions);
+        generatevarientdata(updatedOptions);
     };
 
     const removeOptionValue = (optionIndex: number, valueIndex: number) => {
@@ -101,19 +100,19 @@ const VariantGenerator: React.FC = () => {
                 (_, i) => i !== valueIndex
             );
             setOptions(updatedOptions);
-            generateVariants(updatedOptions);
+            generatevarientdata(updatedOptions);
         }
     };
 
     const removeOption = (index: number) => {
         const updatedOptions = options.filter((_, i) => i !== index);
         setOptions(updatedOptions);
-        generateVariants(updatedOptions);
+        generatevarientdata(updatedOptions);
     };
 
-    const generateVariants = (updatedOptions: Option[]) => {
+    const generatevarientdata = (updatedOptions: Option[]) => {
         if (updatedOptions.length === 0) {
-            setVariants([]);
+            setvarientdata([]);
             return;
         }
 
@@ -127,49 +126,90 @@ const VariantGenerator: React.FC = () => {
             [""]
         );
 
-        const newVariants = combinations.map((combination, index) => ({
+        const newvarientdata = combinations.map((combination, index) => ({
             id: `variant-${index}`,
-            combination,
             stock: 0,
             price: 0,
             images: [],
             sku: "",
         }));
 
-        setVariants(newVariants);
-        setValue("variants", newVariants, { shouldValidate: true });
+        setvarientdata(newvarientdata);
+        setValue("varientdata", newvarientdata, { shouldValidate: true });
     };
 
     const updateVariantField = (id: string, field: keyof Variant, value: Variant[keyof Variant]) => {
-        const updatedVariants = variants.map((variant) =>
+        const updatedvarientdata = varientdata.map((variant) =>
             variant.id === id ? { ...variant, [field]: value } : variant
         );
-        setVariants(updatedVariants);
-        setValue("variants", updatedVariants, { shouldValidate: true });
+        setvarientdata(updatedvarientdata);
+        setValue("varientdata", updatedvarientdata, { shouldValidate: true });
     };
 
     const handleImageUpload = (id: string, files: FileList | null) => {
         if (!files) return;
 
         const uploadedImages = Array.from(files).map((file) => ({ url: file.name }));
-        const updatedVariants = variants.map((variant) =>
+        const updatedvarientdata = varientdata.map((variant) =>
             variant.id === id ? { ...variant, images: uploadedImages } : variant
         );
 
-        setVariants(updatedVariants);
-        setValue("variants", updatedVariants, { shouldValidate: true });
+        setvarientdata(updatedvarientdata);
+        setValue("varientdata", updatedvarientdata, { shouldValidate: true });
+    };
+
+    // const onSubmit: SubmitHandler<FormData> = async (data) => {
+    //     console.log(data, "data")
+    //     setResponse(data);
+    //     try {
+    //         const res = await fetch("/api/textapi", {
+    //             method: "POST",
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //             },
+    //             body: JSON.stringify(data),
+    //         });
+    //         const result = await res.json();
+    //         setResponse(result);
+    //     } catch (error) {
+    //         console.error("Error posting data:", error);
+    //     }
+    // };
+
+
+
+    // submit data   /api/textapi
+    const generateOptionData = () => {
+        const optionData: Record<string, string[]> = {};
+
+        options.forEach((option) => {
+            if (option.name.trim() !== "") {
+                const filteredValues = option.values.filter((value) => value.trim() !== "");
+                optionData[option.name] = filteredValues;
+            }
+        });
+
+        return optionData;
+
     };
 
     const onSubmit: SubmitHandler<FormData> = async (data) => {
-        console.log(data, "data")
-        setResponse(data);
+        // Prepare options in the desired format
+        const formattedOptions = generateOptionData();
+        const payload = {
+            ...data,
+            options: formattedOptions,
+        };
+
+        console.log(payload, "Payload");
+
         try {
             const res = await fetch("/api/textapi", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify(payload),
             });
             const result = await res.json();
             setResponse(result);
@@ -291,10 +331,10 @@ const VariantGenerator: React.FC = () => {
             </form>
 
             <div>
-                <h2 className="text-lg font-semibold mb-2 text-center">Variants</h2>
-                {variants.map((variant) => (
+                <h2 className="text-lg font-semibold mb-2 text-center">varientdata</h2>
+                {varientdata.map((variant:any) => (
                     <div key={variant.id} className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-100">
-                        <p className="font-medium mb-2">{variant.combination}</p>
+                        <p className="font-medium mb-2">{variant?.combination}</p>
                         <input
                             type="number"
                             value={variant.stock}

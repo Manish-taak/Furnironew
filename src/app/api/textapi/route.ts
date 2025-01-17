@@ -18,6 +18,7 @@ interface ProductRequestBody {
     stock: string
 }
 
+
 /**  
  * @swagger
  * /api/textapi:
@@ -32,6 +33,7 @@ interface ProductRequestBody {
  *               description : hello 400 error
  */
 
+
 export const POST = async (req: NextRequest) => {
 
     try {
@@ -39,15 +41,12 @@ export const POST = async (req: NextRequest) => {
             varientdata: Record<string, { stock: number; sku: string; price: number, images: [] }>
         } = await req.json();
 
-        const { title, tags, images, options, varientdata } = body;
+        const { title, tags, options, varientdata } = body;
         console.log(title, tags, options, varientdata, "============@@@@@@@@@@@@@@@@@@@@@@@@@")
 
-        if (!Array.isArray(images) || images?.some((img: any) => typeof img?.url !== "string")) {
-            return NextResponse.json(
-                { error: "Invalid 'images' format. It must be an array of objects with a 'url' property." },
-                { status: 400 }
-            );
-        }
+        console.log(varientdata)
+
+
 
         if (typeof options !== "object" || Array.isArray(options)) {
             return NextResponse.json(
@@ -57,21 +56,20 @@ export const POST = async (req: NextRequest) => {
         }
 
         if (
-            typeof varientdata !== "object" ||
-            Array.isArray(varientdata) ||
-            Object.values(varientdata)?.some(
-                (item) =>
-                    typeof item?.stock !== "number" ||
-                    typeof item.sku !== "string" ||
-                    typeof item.price !== "number" ||
-                    (item && item?.images && !Array.isArray(item?.images)) ||
-                    (item && item?.images?.some((image: any) => typeof image?.url !== "string"))
+            !Array.isArray(varientdata) ||
+            varientdata.some(
+                (variant) =>
+                    typeof variant.stock !== "number" ||
+                    typeof variant.sku !== "string" ||
+                    typeof variant.price !== "number" ||
+                    !Array.isArray(variant.images) ||
+                    variant.images.some((image: any) => typeof image?.url !== "string")
             )
         ) {
             return NextResponse.json(
                 {
                     error:
-                        "Invalid 'varientdata' format. Each value must contain 'stock', 'sku', 'price', and optionally 'images' with valid URLs.",
+                        "Invalid 'varientdata' format. Each element in the array must contain 'stock', 'sku', 'price', and 'images' with valid URLs.",
                 },
                 { status: 400 }
             );
@@ -133,26 +131,42 @@ export const POST = async (req: NextRequest) => {
             }))
         );
 
-        await Promise.all(
-            variantsData && variantsData?.map(async ({ variantDetails, combination }) => {
-                const variantTitle = `${title} - ${combination.join("-")}`;
-                const stockKey = combination.join(",");
-                const inventoryData = varientdata[stockKey] || { stock: 0, sku: "", price: 0 };
 
+        console.log(variantsData, "variantsDatavariantsData")
+
+
+        await Promise.all(
+            variantsData?.map(async ({ variantDetails, combination }, index) => {
+                // Generate a unique variant title
+                const variantTitle = `${title} - ${combination.join("-")}`;
+
+                // Find the corresponding variant data by index or other identifier
+                const inventoryData = varientdata[index] || { stock: 0, sku: "", price: 0, images: [] };
+
+                // Debugging inventoryData
+                console.log(
+                    inventoryData.sku,
+                    inventoryData.price,
+                    inventoryData.stock,
+                    inventoryData.images,
+                    "================ inventory data"
+                );
+
+                // Create variant in Prisma
                 return prisma.variant.create({
                     data: {
                         productId: product.id,
                         optionDetails: variantDetails,
                         varianttitle: variantTitle,
-                        price: inventoryData.price,
-                        inventory: inventoryData.stock.toString(),
-                        sku: inventoryData.sku,
+                        price: inventoryData.price, // Correct price handling
+                        inventory: inventoryData.stock.toString(), // Correct stock handling
+                        sku: inventoryData.sku, // Correct SKU handling
                         images: {
-                            create: inventoryData && inventoryData?.images?.map((image: any) => ({
-                                url: image.url,
+                            create: inventoryData.images?.map((image: any) => ({
+                                url: image.url, // Ensure valid image URLs
                             })),
                         },
-                    }
+                    },
                 });
             })
         );
@@ -171,6 +185,8 @@ export const POST = async (req: NextRequest) => {
         );
     }
 };
+
+
 
 /**  
  * @swagger

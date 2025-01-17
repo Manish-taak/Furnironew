@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+
+/* Tailwind Swiper Pagination Styles */
+.swiper-pagination-bullet {
+  @apply !bg-gray-300;
+  /* Default bullet color */
+}
+
+.swiper-pagination-bullet-active {
+  @apply !bg-red-900;
+  /* Active bullet color */
+}
+
+
+
 @layer utilities {
   ::selection {
     color: white;
@@ -23,9 +39,11 @@
   .heading_28 {
     @apply text-[28px] font-semibold leading-9;
   }
+
   .heading_25 {
     @apply text-[25px] font-semibold leading-[38px];
   }
+
   .heading_24 {
     @apply text-[24px] font-semibold leading-[29px];
   }
@@ -33,6 +51,7 @@
   .heading_20 {
     @apply text-xl leading-[30px] font-normal;
   }
+
   .heading_16 {
     @apply text-base leading-[24px] font-medium;
   }
@@ -60,10 +79,14 @@
   .container {
     @apply max-w-[1320px] w-full mx-auto px-5;
   }
+
   .common_input {
     @apply border border-[#b88e2f] rounded-xl p-4 max-w-full w-full placeholder:text-[#b88e2f] outline-none placeholder:text-lg text-lg text-[#b88e2f];
   }
-  .input_label{
+
+  .input_label {
     @apply heading_25 text-[#b88e2f]
   }
+
+  
 }

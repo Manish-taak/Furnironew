@@ -14,6 +14,20 @@ import Benefits from "@/component/Benefits";
 import TittleSection from "@/component/TittleSection";
 import Header from "@/component/ui/Header";
 
+
+
+// Import Swiper React components
+import { Swiper, SwiperSlide } from 'swiper/react';
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/pagination';
+
+// import required modules
+import { Pagination } from 'swiper/modules';
+
+
+
 const page = () => {
 
   const {
@@ -22,52 +36,60 @@ const page = () => {
     formState: { errors },
     reset,
   } = useForm();
-
   const [show, setshow] = useState(false);
+
   return (
     <>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor necessitatibus nobis aspernatur, blanditiis impedit consequatur quis ut, repellat dicta nisi accusamus voluptatem illum beatae consequuntur maxime molestias iure a ab!
-      {/* <Banner /> */}
-      {/* <BrowseRange /> */}
-      {/* <FuniroFurniture /> */}
-      {/* <Benefits /> */}
-      {/* <OurProducts /> */}
-      {/* <TittleSection /> */}
-      {/* <Card /> */}
-      {/* <Button
-        icon={true}
-        navroute="/productComparison"
-        btntype="submit"
-        varient="transparent"
-        children="hello"
-      /> */}
-      {/* <Input type="number" placeholder="enter your name" label="Your name" />
-      <Input
-        show={true}
-        setshow={setshow}
-        placeholder="write your name"
-        label="your name"
-        type={`${show === true ? "text" : "password"}`}
-        showtype={show}
-      /> */}
-      {/* <Controller
-        name="gender"
-        control={control}
-        render={({ field }) => (
-          <InputSelect
-            {...field}
-            label="Gender"
-            placeholder="Western Province"
-            value={field.value}
-            onChange={field.onChange}
-            options={[
-              { id: 1, name: "Male" },
-              { id: 2, name: "Female" },
-              { id: 3, name: "Other" },
-            ]}
-          />
-        )}
-      /> */}
+      Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor necessitatibus nobis aspernatur, blanditiis impedit consequatur quis ut, repellat dicta nisi accusamus voluptatem illum beatae consequuntur maxime molestias iure a ab!
+      <Swiper                         
+        pagination={{
+          dynamicBullets: true,
+        }}
+        modules={[Pagination]}
+        className="mySwiper"
+      >
+        <SwiperSlide>Slide 1</SwiperSlide>
+        <SwiperSlide>Slide 2</SwiperSlide>
+        <SwiperSlide>Slide 3</SwiperSlide>
+        <SwiperSlide>Slide 4</SwiperSlide>
+        <SwiperSlide>Slide 5</SwiperSlide>
+        <SwiperSlide>Slide 6</SwiperSlide>
+        <SwiperSlide>Slide 7</SwiperSlide>
+        <SwiperSlide>Slide 8</SwiperSlide>
+        <SwiperSlide>Slide 9</SwiperSlide>
+      </Swiper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </>
   );
 };

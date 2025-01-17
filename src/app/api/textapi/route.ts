@@ -33,12 +33,14 @@ interface ProductRequestBody {
  */
 
 export const POST = async (req: NextRequest) => {
+
     try {
         const body: ProductRequestBody & {
             varientdata: Record<string, { stock: number; sku: string; price: number, images: [] }>
         } = await req.json();
 
         const { title, tags, images, options, varientdata } = body;
+        console.log(title, tags, options, varientdata, "============@@@@@@@@@@@@@@@@@@@@@@@@@")
 
         if (!Array.isArray(images) || images?.some((img: any) => typeof img?.url !== "string")) {
             return NextResponse.json(
@@ -354,6 +356,8 @@ export const DELETE = async (req: NextRequest) => {
     );
 };
 
+
+
 /**
  * @swagger
  * /api/textapi:
@@ -367,6 +371,8 @@ export const DELETE = async (req: NextRequest) => {
  *       400:
  *         description: Error response with "400 error".
  */
+
+
 
 export const PUT = async (req: NextRequest) => {
     try {

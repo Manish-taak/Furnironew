@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/modifiers": "^9.0.0",
+    "@dnd-kit/sortable": "^10.0.0",
     "@hookform/resolvers": "^3.9.0",
     "@nestjs/core": "^10.4.15",
     "@nestjs/swagger": "^8.1.0",
@@ -26,6 +29,7 @@
     "nextjs-toploader": "^3.6.15",
     "nodemailer": "^6.9.15",
     "react": "^18",
+    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18",
     "react-dropzone": "^14.3.5",
     "react-hook-form": "^7.54.2",
@@ -46,6 +50,7 @@
     "@types/node": "^20",
     "@types/nodemailer": "^6.4.15",
     "@types/react": "^18",
+    "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "^18",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.7",

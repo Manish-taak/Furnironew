@@ -14,6 +14,7 @@ interface Variant {
     price: number;
     images: { url: string }[];
     sku: string;
+    combination: string;
 }
 
 interface FormData {
@@ -21,11 +22,6 @@ interface FormData {
     defaultprice: string;
     tags: string[];
     varientdata: Variant[];
-}
-
-
-interface Variant {
-    id: string;
 }
 
 interface UploadedImages {
@@ -46,11 +42,11 @@ const VariantGenerator: React.FC = () => {
         },
     });
 
-    const [response, setResponse] = useState<any>();
     const [inputValue, setInputValue] = useState("");
     const [options, setOptions] = useState<Option[]>([]);
     const [varientdata, setvarientdata] = useState<Variant[]>([]);
-    const [loading , setLoading] = useState(false)
+    console.log(varientdata, "varientdatavarientdata")
+    const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
 
     const tags = watch("tags") || [];
 
@@ -154,64 +150,7 @@ const VariantGenerator: React.FC = () => {
         setValue("varientdata", updatedvarientdata, { shouldValidate: true });
     };
 
-    const handleImageUpload = (id: string, files: FileList | null) => {
-        if (!files) return;
-        const uploadedImages = Array.from(files).map((file) => ({ url: file.name }));
-        const updatedvarientdata = varientdata.map((variant) =>
-            variant.id === id ? { ...variant, images: uploadedImages } : variant
-        );
-        setvarientdata(updatedvarientdata);
-        setValue("varientdata", updatedvarientdata, { shouldValidate: true });
-    };
-
-    const generateOptionData = () => {
-        const optionData: Record<string, string[]> = {};
-        options.forEach((option) => {
-            if (option.name.trim() !== "") {
-                const filteredValues = option.values.filter((value) => value.trim() !== "");
-                optionData[option.name] = filteredValues;
-            }
-        });
-        return optionData;
-    };
-
-    const onSubmit: SubmitHandler<FormData> = async (data: any) => {
-        setLoading(true);
-        const formattedOptions = generateOptionData();
-        const payload = {
-            ...data,
-            options: formattedOptions,
-        };
-        try {
-            const res = await fetch("/api/textapi", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
-            const result = await res.json();
-            setResponse(result);
-        } catch (error) {
-            console.error("Error posting data:", error);
-        }finally{
-            setLoading(false)
-        }
-    };
-
-    const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
-
-    const handleImageUpload1 = (id: string, files: FileList | null) => {
-        if (!files) return;
-        const uploadedImages = Array.from(files).map((file) => ({ url: file.name }));
-        const updatedvarientdata = varientdata.map((variant) =>
-            variant.id === id ? { ...variant, images: uploadedImages } : variant
-        );
-        setvarientdata(updatedvarientdata);
-        setValue("varientdata", updatedvarientdata, { shouldValidate: true });
-    };
-
-    const handleImageUpload12 = (variantId: string, files: FileList | null) => {
+    const handleImageUpload = (variantId: string, files: FileList | null) => {
         if (!files) return;
         const fileArray = Array.from(files);
         const previewUrls = fileArray.map((file) => URL.createObjectURL(file));
@@ -225,6 +164,58 @@ const VariantGenerator: React.FC = () => {
         );
         setvarientdata(updatedvarientdata);
         setValue("varientdata", updatedvarientdata, { shouldValidate: true });
+    };
+
+    const onSubmit: SubmitHandler<FormData> = async (data) => {
+        const optionData: Record<string, string[]> = {};
+        options.forEach((option) => {
+            if (option.name.trim() !== "") {
+                const filteredValues = option.values.filter((value) => value.trim() !== "");
+                optionData[option.name] = filteredValues;
+            }
+        });
+
+        const payload = {
+            ...data,
+            options: optionData,
+        };
+
+        try {
+            const res = await fetch("/api/textapi", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+            const result = await res.json();
+            console.log("Response:", result);
+        } catch (error) {
+            console.error("Error posting data:", error);
+        }
+    };
+
+    const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: number) => {
+        e.dataTransfer.setData("id", id.toString());
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>, targetId: number) => {
+        e.preventDefault();
+        const draggedId = parseInt(e.dataTransfer.getData("id"), 10);
+
+        if (draggedId === targetId) return;
+
+        const draggedIndex = varientdata.findIndex((item: any) => item.id === draggedId);
+        const targetIndex = varientdata.findIndex((item: any) => item.id === targetId);
+
+        const updatedItems = [...varientdata];
+        const [draggedItem] = updatedItems.splice(draggedIndex, 1);
+        updatedItems.splice(targetIndex, 0, draggedItem);
+        setvarientdata(updatedItems);
+    };
+
+    const allowDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
     };
 
     return (
@@ -327,85 +318,92 @@ const VariantGenerator: React.FC = () => {
                             Add Option
                         </button>
                     </div>
-
                     <button
                         type="submit"
-                        className={`w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 ${loading && "cursor-not-allowed"}`}
+                        className="w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                     >
                         Submit
                     </button>
                 </form>
+
                 <div>
                     <h2 className="text-2xl font-semibold my-7 text-center">varientdata</h2>
-                    {varientdata.map((variant: any) => (
-                        <div key={variant.id} className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-100">
-                            <p className="font-medium mb-2">{variant?.combination}</p>
-                            <input
-                                type="number"
-                                value={variant.stock}
-                                onChange={(e) => updateVariantField(variant.id, "stock", +e.target.value)}
-                                placeholder="Stock"
-                                className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
-                            />
-                            <input
-                                type="number"
-                                value={variant.price}
-                                onChange={(e) => updateVariantField(variant.id, "price", +e.target.value)}
-                                placeholder="Price"
-                                className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
-                            />
-                            <input
-                                type="text"
-                                value={variant.sku}
-                                onChange={(e) => updateVariantField(variant.id, "sku", e.target.value)}
-                                placeholder="SKU"
-                                className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
-                            />
-
-
-                            {/* <input
-                                type="file"
-                                onChange={(e) => updateVariantField(variant.id, "image", e.target.files?.[0] || null)}
-                                className="block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
-                            /> */}
-
-
-                            <div className="space-y-4">
+                    {varientdata.length > 0 && varientdata && varientdata.map((variant: any) => (
+                        <div
+                            key={variant.id}
+                            id={`item-${variant.id}`}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, variant.id)}
+                            onDragOver={allowDrop}
+                            onDrop={(e) => handleDrop(e, variant.id)}
+                            style={{
+                                padding: "10px",
+                                border: "1px solid #ccc",
+                                borderRadius: "5px",
+                                backgroundColor: "#f9f9f9",
+                                cursor: "grab",
+                                textAlign: "center",
+                            }}
+                        >
+                            <div key={variant.id} className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-100  " >
+                                <p className="font-medium mb-2">{variant?.combination}</p>
                                 <input
-                                    type="file"
-                                    multiple
-                                    onChange={(e) => handleImageUpload12(variant.id, e.target.files)}
-                                    className="block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
+                                    type="number"
+                                    value={variant.stock}
+                                    onChange={(e) => updateVariantField(variant.id, "stock", +e.target.value)}
+                                    placeholder="Stock"
+                                    className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
                                 />
-                                <div className="flex flex-wrap gap-4">
-                                    {(uploadedImages[variant.id] || [])?.map((image, index) => (
-                                        <div key={index} className="relative">
-                                            <img
-                                                src={image}
-                                                alt={`Uploaded preview ${index + 1}`}
-                                                className="w-full h-[100px] object-contain rounded-md"
-                                            />
-                                            <button
-                                                onClick={() =>
-                                                    setUploadedImages((prev) => ({
-                                                        ...prev,
-                                                        [variant.id]: prev[variant.id].filter((_, i) => i !== index),
-                                                    }))
-                                                }
-                                                className="absolute top-1 right-1 bg-red-500 text-white text-sm p-1 rounded-full"
-                                            >
-                                                ✕
-                                            </button>
-                                        </div>
-                                    ))}
+                                <input
+                                    type="number"
+                                    value={variant.price}
+                                    onChange={(e) => updateVariantField(variant.id, "price", +e.target.value)}
+                                    placeholder="Price"
+                                    className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
+                                />
+                                <input
+                                    type="text"
+                                    value={variant.sku}
+                                    onChange={(e) => updateVariantField(variant.id, "sku", e.target.value)}
+                                    placeholder="SKU"
+                                    className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
+                                />
+                                <div className="space-y-4">
+                                    <input
+                                        type="file"
+                                        multiple
+                                        onChange={(e) => handleImageUpload(variant.id, e.target.files)}
+                                        className="block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
+                                    />
+                                    <div className="flex flex-wrap gap-4">
+                                        {(uploadedImages[variant.id] || [])?.map((image, index) => (
+                                            <div key={index} className="relative">
+                                                <img
+                                                    src={image}
+                                                    alt={`Uploaded preview ${index + 1}`}
+                                                    className="w-full h-[100px] object-contain rounded-md"
+                                                />
+                                                <button
+                                                    onClick={() =>
+                                                        setUploadedImages((prev) => ({
+                                                            ...prev,
+                                                            [variant.id]: prev[variant.id].filter((_, i) => i !== index),
+                                                        }))
+                                                    }
+                                                    className="absolute top-1 right-1 bg-red-500 text-white text-sm p-1 rounded-full"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-
-                            
                         </div>
                     ))}
                 </div>
-            </div>
+
+            </div >
 
         </>
     );

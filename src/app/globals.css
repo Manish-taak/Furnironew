@@ -23,7 +23,9 @@
     color: white;
     background-color: black;
   }
-
+input{
+  @apply outline-none
+}
   .heading_48 {
     @apply text-5xl font-medium leading-[72px];
   }

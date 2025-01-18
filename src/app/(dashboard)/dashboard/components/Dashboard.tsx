@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import DragAndDrop from "./Dropgrag";
+import DragDrop from "@/component/DragFiles";
 
 interface Option {
     name: string;
@@ -47,6 +49,7 @@ const VariantGenerator: React.FC = () => {
     const [varientdata, setvarientdata] = useState<Variant[]>([]);
     console.log(varientdata, "varientdatavarientdata")
     const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
+    const [loading, setLoading] = useState(false)
 
     const tags = watch("tags") || [];
 
@@ -167,6 +170,7 @@ const VariantGenerator: React.FC = () => {
     };
 
     const onSubmit: SubmitHandler<FormData> = async (data) => {
+        setLoading(true);
         const optionData: Record<string, string[]> = {};
         options.forEach((option) => {
             if (option.name.trim() !== "") {
@@ -192,6 +196,8 @@ const VariantGenerator: React.FC = () => {
             console.log("Response:", result);
         } catch (error) {
             console.error("Error posting data:", error);
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -320,7 +326,7 @@ const VariantGenerator: React.FC = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                        className={`w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 ${loading && "cursor-not-allowed"}`}
                     >
                         Submit
                     </button>
@@ -328,83 +334,56 @@ const VariantGenerator: React.FC = () => {
 
                 <div>
                     <h2 className="text-2xl font-semibold my-7 text-center">varientdata</h2>
-                    {varientdata.length > 0 && varientdata && varientdata.map((variant: any) => (
-                        <div
-                            key={variant.id}
-                            id={`item-${variant.id}`}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, variant.id)}
-                            onDragOver={allowDrop}
-                            onDrop={(e) => handleDrop(e, variant.id)}
-                            style={{
-                                padding: "10px",
-                                border: "1px solid #ccc",
-                                borderRadius: "5px",
-                                backgroundColor: "#f9f9f9",
-                                cursor: "grab",
-                                textAlign: "center",
-                            }}
-                        >
-                            <div key={variant.id} className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-100  " >
-                                <p className="font-medium mb-2">{variant?.combination}</p>
-                                <input
-                                    type="number"
-                                    value={variant.stock}
-                                    onChange={(e) => updateVariantField(variant.id, "stock", +e.target.value)}
-                                    placeholder="Stock"
-                                    className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
-                                />
-                                <input
-                                    type="number"
-                                    value={variant.price}
-                                    onChange={(e) => updateVariantField(variant.id, "price", +e.target.value)}
-                                    placeholder="Price"
-                                    className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
-                                />
-                                <input
-                                    type="text"
-                                    value={variant.sku}
-                                    onChange={(e) => updateVariantField(variant.id, "sku", e.target.value)}
-                                    placeholder="SKU"
-                                    className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
-                                />
-                                <div className="space-y-4">
+                    {
+                        varientdata.length > 0 && varientdata && varientdata.map((variant: any) => (
+                            <div
+                                key={variant.id}
+                                id={`item-${variant.id}`}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, variant.id)}
+                                onDragOver={allowDrop}
+                                onDrop={(e) => handleDrop(e, variant.id)}
+                                style={{
+                                    padding: "10px",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "5px",
+                                    backgroundColor: "#f9f9f9",
+                                    cursor: "grab",
+                                    textAlign: "center",
+                                }}
+                            >
+                                <div key={variant.id} className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-100  " >
+                                    <p className="font-medium mb-2">{variant?.combination}</p>
+                                    <label className="text-base text-gray-500 capitalize" htmlFor="stock">stock</label>
                                     <input
-                                        type="file"
-                                        multiple
-                                        onChange={(e) => handleImageUpload(variant.id, e.target.files)}
-                                        className="block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
+                                        type="text"
+                                        value={variant.stock}
+                                        onChange={(e) => updateVariantField(variant.id, "stock", +e.target.value)}
+                                        placeholder="Stock"
+                                        className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
                                     />
-                                    <div className="flex flex-wrap gap-4">
-                                        {(uploadedImages[variant.id] || [])?.map((image, index) => (
-                                            <div key={index} className="relative">
-                                                <img
-                                                    src={image}
-                                                    alt={`Uploaded preview ${index + 1}`}
-                                                    className="w-full h-[100px] object-contain rounded-md"
-                                                />
-                                                <button
-                                                    onClick={() =>
-                                                        setUploadedImages((prev) => ({
-                                                            ...prev,
-                                                            [variant.id]: prev[variant.id].filter((_, i) => i !== index),
-                                                        }))
-                                                    }
-                                                    className="absolute top-1 right-1 bg-red-500 text-white text-sm p-1 rounded-full"
-                                                >
-                                                    ✕
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <label className="text-base text-gray-500 capitalize" htmlFor="price">price</label>
+                                    <input
+                                        type="text"
+                                        value={variant.price}
+                                        onChange={(e) => updateVariantField(variant.id, "price", +e.target.value)}
+                                        placeholder="Price"
+                                        className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
+                                    />
+                                    <label className="text-base text-gray-500 capitalize" htmlFor="sku">sku</label>
+                                    <input
+                                        type="text"
+                                        value={variant.sku}
+                                        onChange={(e) => updateVariantField(variant.id, "sku", e.target.value)}
+                                        placeholder="SKU"
+                                        className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
+                                    />
+                                    <DragDrop onChange={(e: any) => handleImageUpload(variant.id, e.target.files)} />
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
                 </div>
-
             </div >
-
         </>
     );
 };

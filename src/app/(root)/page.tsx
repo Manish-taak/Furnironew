@@ -9,7 +9,7 @@ const page = () => {
   return (
     <>
       <DragAndDrop />
-      <DragDrop />
+      {/* <DragDrop /> */}
 
     </>
   );

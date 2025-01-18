@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import DragAndDrop from "./Dropgrag";
 import DragDrop from "@/component/DragFiles";
@@ -50,6 +50,9 @@ const VariantGenerator: React.FC = () => {
     console.log(varientdata, "varientdatavarientdata")
     const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
     const [loading, setLoading] = useState(false)
+
+
+
 
     const tags = watch("tags") || [];
 
@@ -201,28 +204,66 @@ const VariantGenerator: React.FC = () => {
         }
     };
 
-    const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: number) => {
-        e.dataTransfer.setData("id", id.toString());
+    // const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: number) => {
+    //     e.dataTransfer.setData("id", id.toString());
+    // };
+
+    // const handleDrop = (e: React.DragEvent<HTMLDivElement>, targetId: number) => {
+    //     e.preventDefault();
+    //     const draggedId = parseInt(e.dataTransfer.getData("id"), 10);
+
+    //     if (draggedId === targetId) return;
+
+    //     const draggedIndex = varientdata.findIndex((item: any) => item.id === draggedId);
+    //     const targetIndex = varientdata.findIndex((item: any) => item.id === targetId);
+
+    //     const updatedItems = [...varientdata];
+    //     const [draggedItem] = updatedItems.splice(draggedIndex, 1);
+    //     updatedItems.splice(targetIndex, 0, draggedItem);
+    //     setvarientdata(updatedItems);
+    // };
+
+    // const allowDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    //     e.preventDefault();
+    // };
+
+    // second
+
+
+    const handleDragStart = (event: React.DragEvent<HTMLDivElement>, index: number) => {
+        event.dataTransfer.setData('text/plain', index.toString());
+        event.currentTarget.classList.add('dragging');
     };
 
-    const handleDrop = (e: React.DragEvent<HTMLDivElement>, targetId: number) => {
-        e.preventDefault();
-        const draggedId = parseInt(e.dataTransfer.getData("id"), 10);
-
-        if (draggedId === targetId) return;
-
-        const draggedIndex = varientdata.findIndex((item: any) => item.id === draggedId);
-        const targetIndex = varientdata.findIndex((item: any) => item.id === targetId);
-
-        const updatedItems = [...varientdata];
-        const [draggedItem] = updatedItems.splice(draggedIndex, 1);
-        updatedItems.splice(targetIndex, 0, draggedItem);
-        setvarientdata(updatedItems);
+    const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.currentTarget.classList.add('drag-over');
     };
 
-    const allowDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
+    const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+        event.currentTarget.classList.remove('drag-over');
     };
+
+    const handleDrop = (event: React.DragEvent<HTMLDivElement>, dropIndex: number) => {
+        event.preventDefault();
+        const dragIndex = Number(event.dataTransfer.getData('text/plain'));
+        if (dragIndex === dropIndex) return;
+
+        const updatedOptions = Array.from(options);
+        const [draggedItem] = updatedOptions.splice(dragIndex, 1);
+        updatedOptions.splice(dropIndex, 0, draggedItem);
+
+        setOptions(updatedOptions);
+
+        // Cleanup classes
+        event.currentTarget.classList.remove('drag-over');
+        document.querySelector('.dragging')?.classList.remove('dragging');
+    };
+
+
+    // useEffect(() => {
+    //     generatevarientdata(options)
+    // }, [varientdata])
 
     return (
         <>
@@ -283,7 +324,14 @@ const VariantGenerator: React.FC = () => {
                     <div className="mb-6">
                         <h2 className="text-lg font-semibold mb-2">Options</h2>
                         {options.map((option, index) => (
-                            <div key={index} className="mb-4">
+                            <div key={index}
+                                draggable
+                                onDragStart={(event) => handleDragStart(event, index)}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(event) => handleDrop(event, index)}
+
+                                className="mb-4 p-4 rounded-xl bg-gray-200 cursor-grab">
                                 <input
                                     value={option.name}
                                     onChange={(e) => updateOptionName(index, e.target.value)}
@@ -337,22 +385,22 @@ const VariantGenerator: React.FC = () => {
                     {
                         varientdata.length > 0 && varientdata && varientdata.map((variant: any) => (
                             <div
-                                key={variant.id}
-                                id={`item-${variant.id}`}
-                                draggable
-                                onDragStart={(e) => handleDragStart(e, variant.id)}
-                                onDragOver={allowDrop}
-                                onDrop={(e) => handleDrop(e, variant.id)}
-                                style={{
-                                    padding: "10px",
-                                    border: "1px solid #ccc",
-                                    borderRadius: "5px",
-                                    backgroundColor: "#f9f9f9",
-                                    cursor: "grab",
-                                    textAlign: "center",
-                                }}
+                            // key={variant.id}
+                            // id={`item-${variant.id}`}
+                            // draggable
+                            // onDragStart={(e) => handleDragStart(e, variant.id)}
+                            // onDragOver={allowDrop}
+                            // onDrop={(e) => handleDrop(e, variant.id)}
+                            // style={{
+                            //     padding: "10px",
+                            //     border: "1px solid #ccc",
+                            //     borderRadius: "5px",
+                            //     backgroundColor: "#f9f9f9",
+                            //     cursor: "grab",
+                            //     textAlign: "center",
+                            // }}
                             >
-                                <div key={variant.id} className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-100  " >
+                                <div key={variant.id} className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-100 flex flex-col items-start" >
                                     <p className="font-medium mb-2">{variant?.combination}</p>
                                     <label className="text-base text-gray-500 capitalize" htmlFor="stock">stock</label>
                                     <input

@@ -42,9 +42,9 @@ export const POST = async (req: NextRequest) => {
         } = await req.json();
 
         const { title, tags, options, varientdata } = body;
-        console.log(title, tags, options, varientdata, "============@@@@@@@@@@@@@@@@@@@@@@@@@")
+        // console.log(title, tags, options, varientdata, "============@@@@@@@@@@@@@@@@@@@@@@@@@")
 
-        console.log(varientdata)
+        // console.log(varientdata)
 
 
 
@@ -131,9 +131,7 @@ export const POST = async (req: NextRequest) => {
             }))
         );
 
-
         console.log(variantsData, "variantsDatavariantsData")
-
 
         await Promise.all(
             variantsData?.map(async ({ variantDetails, combination }, index) => {

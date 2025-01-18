@@ -25,6 +25,7 @@ import 'swiper/css/pagination';
 
 // import required modules
 import { Pagination } from 'swiper/modules';
+import DragAndDrop from "../(dashboard)/dashboard/components/Dropgrag";
 
 
 
@@ -67,7 +68,7 @@ const page = () => {
 
 
 
-
+      <DragAndDrop />
 
 
 

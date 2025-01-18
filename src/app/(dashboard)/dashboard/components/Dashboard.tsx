@@ -383,7 +383,7 @@ const VariantGenerator: React.FC = () => {
                             </div>
                         ))}
                 </div>
-            </div >
+            </div>
         </>
     );
 };

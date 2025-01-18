@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import DragAndDrop from "./Dropgrag";
 import DragDrop from "@/component/DragFiles";
@@ -143,8 +143,11 @@ const VariantGenerator: React.FC = () => {
         }));
         setvarientdata(newvarientdata);
         setValue("varientdata", newvarientdata, { shouldValidate: true });
-    };
 
+    };
+useEffect(()=>{
+    generatevarientdata(options)
+},[options])
     const updateVariantField = (id: string, field: keyof Variant, value: Variant[keyof Variant]) => {
         const updatedvarientdata = varientdata.map((variant) =>
             variant.id === id ? { ...variant, [field]: value } : variant
@@ -252,6 +255,8 @@ const VariantGenerator: React.FC = () => {
 
         setOptions(updatedOptions);
 
+
+
         // Cleanup classes
         event.currentTarget.classList.remove('drag-over');
         document.querySelector('.dragging')?.classList.remove('dragging');
@@ -262,8 +267,7 @@ const VariantGenerator: React.FC = () => {
             <div className="grid grid-cols-2">
                 <form
                     onSubmit={handleSubmit(onSubmit)}
-                    className="p-4 bg-gray-50 rounded-lg shadow-md sticky top-0 overflow-y-auto h-screen"
-                >
+                    className="p-4 bg-gray-50 rounded-lg shadow-md sticky top-0 overflow-y-auto h-screen" >
                     <h1 className="text-2xl font-bold text-center mb-6">Variant Generator</h1>
                     {/* Title */}
                     <div className="mb-4">

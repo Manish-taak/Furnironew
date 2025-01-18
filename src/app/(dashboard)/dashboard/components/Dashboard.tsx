@@ -50,6 +50,7 @@ const VariantGenerator: React.FC = () => {
     const [inputValue, setInputValue] = useState("");
     const [options, setOptions] = useState<Option[]>([]);
     const [varientdata, setvarientdata] = useState<Variant[]>([]);
+    const [loading , setLoading] = useState(false)
 
     const tags = watch("tags") || [];
 
@@ -175,6 +176,7 @@ const VariantGenerator: React.FC = () => {
     };
 
     const onSubmit: SubmitHandler<FormData> = async (data: any) => {
+        setLoading(true);
         const formattedOptions = generateOptionData();
         const payload = {
             ...data,
@@ -192,6 +194,8 @@ const VariantGenerator: React.FC = () => {
             setResponse(result);
         } catch (error) {
             console.error("Error posting data:", error);
+        }finally{
+            setLoading(false)
         }
     };
 
@@ -326,7 +330,7 @@ const VariantGenerator: React.FC = () => {
 
                     <button
                         type="submit"
-                        className="w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                        className={`w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 ${loading && "cursor-not-allowed"}`}
                     >
                         Submit
                     </button>

@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import DragAndDrop from "./Dropgrag";
 
 interface Option {
     name: string;
@@ -30,9 +29,8 @@ interface Variant {
 }
 
 interface UploadedImages {
-    [key: string]: string[]; // Maps variant IDs to an array of image URLs
+    [key: string]: string[];
 }
-
 
 const VariantGenerator: React.FC = () => {
     const {
@@ -167,7 +165,6 @@ const VariantGenerator: React.FC = () => {
 
     const generateOptionData = () => {
         const optionData: Record<string, string[]> = {};
-
         options.forEach((option) => {
             if (option.name.trim() !== "") {
                 const filteredValues = option.values.filter((value) => value.trim() !== "");
@@ -360,6 +357,15 @@ const VariantGenerator: React.FC = () => {
                                 placeholder="SKU"
                                 className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
                             />
+
+
+                            {/* <input
+                                type="file"
+                                onChange={(e) => updateVariantField(variant.id, "image", e.target.files?.[0] || null)}
+                                className="block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
+                            /> */}
+
+
                             <div className="space-y-4">
                                 <input
                                     type="file"
@@ -390,11 +396,13 @@ const VariantGenerator: React.FC = () => {
                                     ))}
                                 </div>
                             </div>
+
+                            
                         </div>
                     ))}
                 </div>
             </div>
-           
+
         </>
     );
 };

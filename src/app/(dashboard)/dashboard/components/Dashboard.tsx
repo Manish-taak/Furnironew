@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import DragAndDrop from "./Dropgrag";
 import DragDrop from "@/component/DragFiles";
+import { sidebarAccordion } from "@/lib/sidebarAccordion";
 
 interface Option {
     name: string;
@@ -47,7 +48,6 @@ const VariantGenerator: React.FC = () => {
     const [inputValue, setInputValue] = useState("");
     const [options, setOptions] = useState<Option[]>([]);
     const [varientdata, setvarientdata] = useState<Variant[]>([]);
-    console.log(varientdata, "varientdatavarientdata")
     const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
     const [loading, setLoading] = useState(false)
 
@@ -145,9 +145,10 @@ const VariantGenerator: React.FC = () => {
         setValue("varientdata", newvarientdata, { shouldValidate: true });
 
     };
-useEffect(()=>{
-    generatevarientdata(options)
-},[options])
+    useEffect(() => {
+        generatevarientdata(options)
+        console.log(options,"updated varients on chnage of options")
+    }, [options])
     const updateVariantField = (id: string, field: keyof Variant, value: Variant[keyof Variant]) => {
         const updatedvarientdata = varientdata.map((variant) =>
             variant.id === id ? { ...variant, [field]: value } : variant
@@ -327,29 +328,29 @@ useEffect(()=>{
                                 onDragLeave={handleDragLeave}
                                 onDrop={(event) => handleDrop(event, index)}
                                 className="mb-4 p-4 rounded-xl bg-gray-200 cursor-grab">
-                                <input
-                                    value={option.name}
-                                    onChange={(e) => updateOptionName(index, e.target.value)}
-                                    placeholder="Option name"
-                                    className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
-                                />
-                                {option.values.map((value, valueIndex) => (
-                                    <div key={valueIndex} className="flex items-center space-x-2 mb-2">
-                                        <input
-                                            value={value}
-                                            onChange={(e) => updateOptionValue(index, valueIndex, e.target.value)}
-                                            placeholder={`Value ${valueIndex + 1}`}
-                                            className="w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => removeOptionValue(index, valueIndex)}
-                                            className="text-red-500 underline"
-                                        >
-                                            Remove
-                                        </button>
-                                    </div>
-                                ))}
+                                    <input
+                                        value={option.name}
+                                        onChange={(e) => updateOptionName(index, e.target.value)}
+                                        placeholder="Option name"
+                                        className="block w-full mb-2 border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
+                                    />
+                                    {option.values.map((value, valueIndex) => (
+                                        <div key={valueIndex} className="flex items-center space-x-2 mb-2">
+                                            <input
+                                                value={value}
+                                                onChange={(e) => updateOptionValue(index, valueIndex, e.target.value)}
+                                                placeholder={`Value ${valueIndex + 1}`}
+                                                className="w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-green-200"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeOptionValue(index, valueIndex)}
+                                                className="text-red-500 underline"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))}
                                 <button
                                     type="button"
                                     onClick={() => removeOption(index)}
@@ -378,25 +379,12 @@ useEffect(()=>{
                 <div>
                     <h2 className="text-2xl font-semibold my-7 text-center">varientdata</h2>
                     {
-                        varientdata.length > 0 && varientdata && varientdata.map((variant: any) => (
-                            <div
-                            // key={variant.id}
-                            // id={`item-${variant.id}`}
-                            // draggable
-                            // onDragStart={(e) => handleDragStart(e, variant.id)}
-                            // onDragOver={allowDrop}
-                            // onDrop={(e) => handleDrop(e, variant.id)}
-                            // style={{
-                            //     padding: "10px",
-                            //     border: "1px solid #ccc",
-                            //     borderRadius: "5px",
-                            //     backgroundColor: "#f9f9f9",
-                            //     cursor: "grab",
-                            //     textAlign: "center",
-                            // }}
-                            >
-                                <div key={variant.id} className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-100 flex flex-col items-start" >
-                                    <p className="font-medium mb-2">{variant?.combination}</p>
+                        varientdata.length > 0 && varientdata && varientdata.map((variant: any) => (<>
+                            <div className="cursor-pointer " onClick={(e) => sidebarAccordion(e)}>
+                                <p className="font-medium text-lg capitalize mb-2 px-4">{variant?.combination}</p>
+                            </div>
+                            <div className="h-0 overflow-hidden duration-300 mb-4">
+                                <div key={variant.id} className="p-3 border border-gray-200 rounded-lg bg-gray-100 flex flex-col items-start" >
                                     <label className="text-base text-gray-500 capitalize" htmlFor="stock">stock</label>
                                     <input
                                         type="text"
@@ -424,7 +412,9 @@ useEffect(()=>{
                                     <DragDrop onChange={(e: any) => handleImageUpload(variant.id, e.target.files)} />
                                 </div>
                             </div>
+                        </>
                         ))}
+
                 </div>
             </div >
         </>

@@ -148,9 +148,9 @@ const VariantGenerator: React.FC = () => {
         setValue("varientdata", newvarientdata, { shouldValidate: true });
 
     };
-useEffect(()=>{
-    generatevarientdata(options)
-},[options])
+    useEffect(() => {
+        generatevarientdata(options)
+    }, [options])
     const updateVariantField = (id: string, field: keyof Variant, value: Variant[keyof Variant]) => {
         const updatedvarientdata = varientdata.map((variant) =>
             variant.id === id ? { ...variant, [field]: value } : variant
@@ -255,15 +255,12 @@ useEffect(()=>{
         const updatedOptions = Array.from(options);
         const [draggedItem] = updatedOptions.splice(dragIndex, 1);
         updatedOptions.splice(dropIndex, 0, draggedItem);
-
         setOptions(updatedOptions);
-
-
-
         // Cleanup classes
         event.currentTarget.classList.remove('drag-over');
         document.querySelector('.dragging')?.classList.remove('dragging');
     };
+
 
     return (
         <>
@@ -384,20 +381,6 @@ useEffect(()=>{
                     {
                         varientdata.length > 0 && varientdata && varientdata.map((variant: any) => (
                             <div
-                            // key={variant.id}
-                            // id={`item-${variant.id}`}
-                            // draggable
-                            // onDragStart={(e) => handleDragStart(e, variant.id)}
-                            // onDragOver={allowDrop}
-                            // onDrop={(e) => handleDrop(e, variant.id)}
-                            // style={{
-                            //     padding: "10px",
-                            //     border: "1px solid #ccc",
-                            //     borderRadius: "5px",
-                            //     backgroundColor: "#f9f9f9",
-                            //     cursor: "grab",
-                            //     textAlign: "center",
-                            // }}
                             >
                                 <div key={variant.id} className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-100 flex flex-col items-start" >
                                     <p className="font-medium mb-2">{variant?.combination}</p>
